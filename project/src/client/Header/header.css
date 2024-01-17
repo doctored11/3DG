@@ -1,0 +1,10 @@
+.example {
+  color: rgb(230, 167, 32);
+  width: 100%;
+  text-align: center;
+  
+}
+.example::after{
+  content: '🎈';
+
+}
