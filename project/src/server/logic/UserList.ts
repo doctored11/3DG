@@ -1,4 +1,5 @@
-import { Player } from "./Player";
+
+import { Player, playerProp } from "./Player";
 
 class UserList {
   private players: Record<string, Player> = {};

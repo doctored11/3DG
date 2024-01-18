@@ -6,7 +6,7 @@ export const indexTemplate = (content) => `
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reddit</title>
+  <title>TEST</title>
 
   <script src ="/socket.io/socket.io.js"></script>
   
@@ -14,7 +14,7 @@ export const indexTemplate = (content) => `
 
 <body>
   <div id="react_root">${content}</div>
-  <canvas id="game-zone"></canvas>
+  <div id="game-zone"></div>
   <script src="/static/client.js" type="application/javascript"></script>
 </body>
 

@@ -3,12 +3,14 @@ class Player {
   private name: string;
   private x: number;
   private y: number;
+  private color: string;
 
-  constructor({ id, name, x, y }: playerProp) {
+  constructor({ id, name, x, y,color }: playerProp) {
     this.id = id;
     this.name = name;
     this.x = x;
     this.y = y;
+    this.color = color;
   }
 
   getId(): string {
@@ -36,16 +38,16 @@ class Player {
   }): void {
 
     if (movement.up) {
-      this.setPosition(this.getPos()[0], this.getPos()[1] - 0.5);
+      this.setPosition(this.getPos()[0], this.getPos()[1] + 0.2);
     }
     if (movement.down) {
-      this.setPosition(this.getPos()[0], this.getPos()[1] + 0.5);
+      this.setPosition(this.getPos()[0], this.getPos()[1] - 0.2);
     }
     if (movement.left) {
-      this.setPosition(this.getPos()[0] - 0.5, this.getPos()[1]);
+      this.setPosition(this.getPos()[0] - 0.2, this.getPos()[1]);
     }
     if (movement.right) {
-      this.setPosition(this.getPos()[0] + 0.5, this.getPos()[1]);
+      this.setPosition(this.getPos()[0] + 0.2, this.getPos()[1]);
     }
   }
 }
@@ -54,6 +56,8 @@ interface playerProp {
   name: string;
   x: number;
   y: number;
+  color:string;
 }
 
-module.exports = Player;
+export { Player, playerProp };
+

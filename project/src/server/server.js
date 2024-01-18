@@ -6,8 +6,9 @@ const socketIO = require('socket.io');
 const path = require('path')
 const ReactDOM = require("react-dom/server");
 const { indexTemplate } = require("./indexTemplate");
+const { Player } = require("./logic/Player");
 const UserList = require("./logic/UserList")
-const Player = require("./logic/Player")
+
 
 
 const app = express();
@@ -25,16 +26,21 @@ app.get('/', (req, res) => {
 });
 const userList = new UserList();
 
-
+function generateRandomColor() { //временно или вынести в утилиты
+  const color = Math.floor(Math.random() * 16777215);
+  return color;
+}
 
 io.sockets.on('connection', async (socket) => {
-
-  socket.on("new player", function () {
+  socket.on("new player", function (data) {
+    console.log("__!")
+    console.log(data)
     const id = socket.id
-    const pl = new Player({ id: id, name: "горя", x: 0, y: 0 });
+    const color = generateRandomColor()
+    const pl = new Player({ id: id, name: data, x: 0, y: 0, color: color });
     userList.addUser(pl);
 
-    socket.emit("generateId", id)
+    socket.emit("generate", { id, color })
     console.log(id)
     socket.emit("users update", Object.values(userList.getUserList()))
   })
@@ -43,13 +49,13 @@ io.sockets.on('connection', async (socket) => {
     userList.removeUser(socket.id)
   });
 
-  socket.on('movement', ({ myId, movement } = data) => {
-    const player = userList.getUserById(myId);
+  socket.on('movement', ({ id, movement } = data) => {
+    const player = userList.getUserById(id);
     if (player) {
+
       player.updatePosition(movement);
     }
 
-    
   });
   // 
   async function handleConnection() {
@@ -67,7 +73,6 @@ server.listen(PORT, () => {
 });
 
 const gameLoop = (players, io) => {
- 
   io.sockets.emit("state", players)
 }
 
