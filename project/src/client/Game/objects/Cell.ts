@@ -7,7 +7,7 @@ const COLOR_WHITE = 0xffffff;
 const COLOR_BLACK = 0x000000;
 
 export class Cell extends Figure {
-  protected mesh: THREE.Mesh;
+  public mesh: THREE.Mesh;
   private position: THREE.Vector3;
 
   constructor(scene: THREE.Scene,camera:THREE.Camera, indexI: number, indexJ: number) {

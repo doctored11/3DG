@@ -34,6 +34,7 @@ export class Game {
     this.gameZone = gameZone;
     this.initThree();
     this.setupEventHandlers();
+    this.raycaster = new THREE.Raycaster();
 
     window.addEventListener("click", (event) => this.onClick(event));
   }
@@ -141,25 +142,25 @@ export class Game {
     });
   }
 
-  protected onClick(event: MouseEvent) {
-    console.log("click");
 
+
+  protected onClick(event: MouseEvent) {
     const pointer = new THREE.Vector2();
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-    pointer.y = -((event.clientY / window.innerHeight) * 2 - 1);
-
+    pointer.y = (-event.clientY / window.innerHeight) * 2 + 1;
     this.raycaster.setFromCamera(pointer, this.playerCamera);
+    const intersectionsArray = [];
 
-    
     for (const figure of this.figures) {
-      const intersections = figure.checkIntersection(this.raycaster);
-      if (intersections.length > 0) {
-        
-        const firstIntersection = intersections[0];
-        console.log("Клик по фигуре", firstIntersection);
-        // const blueMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-        // figure.mesh.material = blueMaterial;
+      const intersections = this.raycaster.intersectObjects([figure.mesh]);
+      if (intersections.length > 0 && intersections[0].object instanceof THREE.Mesh) {
+        intersectionsArray.push(intersections[0].object as THREE.Mesh);
       }
+    }
+    if (intersectionsArray.length > 0) {
+      const firstIntersection = intersectionsArray[0];
+      const blueMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+      firstIntersection.material = blueMaterial;
     }
   }
 }
