@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { Board } from "./objects/Board";
 import { ChessPiece } from "./objects/figure/ChessPiece";
 import { Figure } from "./objects/figure/Figure";
+import { Cell } from "./objects/Cell";
 
 interface ClientPlayer {
   x: number;
@@ -27,6 +28,9 @@ export class Game {
   private playerCamera!: THREE.PerspectiveCamera;
   private board!: Board;
   protected figures: Figure[] = [];
+
+  private activeChessFigure: ChessPiece | null = null;
+  // private activeCell: Cell | null = null;
 
   constructor(socket: any, key: string, gameZone: HTMLDivElement) {
     this.socket = socket;
@@ -80,10 +84,6 @@ export class Game {
     //фигуры по которым может быть клик надо хранить в this.figures
     this.figures = boardCells.reduce((acc, row) => acc.concat(row), []);
     this.figures.push(...this.board.getFigures());
-   
-   
-    
-    
 
     this.playerCamera.position.z = 10;
   }
@@ -117,7 +117,7 @@ export class Game {
       // console.log(" update:", players); //вывод игроков получаемых с сервера с их позицией
       this.scene.clear();
       this.board.render();
-      
+
       // console.log(boardCells[0][1]);
       //перемещение игрока(причем максималььно затратное) убрать
       for (const id in players) {
@@ -145,6 +145,13 @@ export class Game {
     for (const figure of this.figures) {
       console.log("onCLICK!");
 
+      if (figure instanceof Cell) {
+        if (this.activeChessFigure == null) {
+          // this.activeCell = null;
+          figure.setHighlight(false);
+        }
+      }
+
       const intersections = this.raycaster.intersectObjects([figure.mesh]);
 
       if (
@@ -154,6 +161,7 @@ export class Game {
         intersectionsArray.push(figure);
       }
     }
+
     if (intersectionsArray.length <= 0) return;
 
     intersectionsArray.sort((a, b) => {
@@ -164,9 +172,35 @@ export class Game {
 
     const firstIntersection = intersectionsArray[0];
 
-    const pinkMaterial = new THREE.MeshBasicMaterial({ color: 0x990099 });
+    // const pinkMaterial = new THREE.MeshBasicMaterial({ color: 0x990099 });
 
-    firstIntersection.mesh.material = pinkMaterial;
-    firstIntersection.onSelect();
+    // firstIntersection.mesh.material = pinkMaterial;
+
+    const cellsToSHighlight: Cell[] | null = firstIntersection.onSelect();
+
+    // firstIntersection фигура которая может сходить(или клетка))
+    // cellsToSHighlight - это массив клеток куда он может сходить
+    cellsToSHighlight?.forEach((el) => {
+      el.setHighlight(true);
+    });
+
+    //Зачаток к логике передвижения
+    console.log("Готовность двигаться!");
+    console.log(this.activeChessFigure);
+    // console.log(this.activeCell)
+    if (firstIntersection instanceof ChessPiece) {
+      this.activeChessFigure = firstIntersection;
+      console.log("Выбрана основная фигура!");
+    } else if (
+      firstIntersection instanceof Cell &&
+      firstIntersection.getHighlightStatus()
+    ) {
+      console.log("Возможен Мув!");
+      console.log(this.activeChessFigure || "а где?");
+
+      this.activeChessFigure?.move(firstIntersection);
+      this.activeChessFigure = null;
+      //потом подумаем как убирать выделение
+    }
   }
 }

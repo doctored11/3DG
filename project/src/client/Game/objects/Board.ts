@@ -30,26 +30,25 @@ export class Board {
       }
     }
 
-    this.figuresInit()
+    this.figuresInit();
   }
   private figuresInit() {
     // тут будет начальная расстановка фигур
-    for (let i=0; i<this.sizeX;++i){
+    for (let i = 0; i < this.sizeX; ++i) {
       const buffPice = new ChessPiece(
         this.scene,
         this.camera,
+        this,
         this.cells[i][3],
         0xff0000
       );
-      this.chesses.push(buffPice)
+      this.chesses.push(buffPice);
     }
-
-    
   }
   public render() {
     for (let i = 0; i < this.cells.length; ++i) {
       for (let j = 0; j < this.cells[i].length; ++j) {
-        this.scene.add(this.cells[i][j].getMesh());
+        this.cells[i][j].draw();
       }
     }
     this.chesses.forEach((el) => {

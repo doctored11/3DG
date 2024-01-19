@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { Cell } from "../Cell";
 
 export class Figure {
   public mesh: THREE.Mesh;
@@ -34,9 +35,11 @@ export class Figure {
     return this.mesh.position.clone();
   }
 
-  public onSelect() {
+  public onSelect():(Cell[]|null) {
     console.log("Я выбран:");
     console.log(this);
     console.log("________]");
+
+    return null
   }
 }
