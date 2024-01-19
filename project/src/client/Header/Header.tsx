@@ -1,5 +1,5 @@
 import { hot } from "react-hot-loader/root";
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import styles from "./header.css";
 
 interface HeaderComponentProps {
@@ -7,8 +7,11 @@ interface HeaderComponentProps {
   onNicknameConfirm: () => void;
 }
 
-export const HeaderComponent: React.FC<HeaderComponentProps> = ({ onNicknameChange, onNicknameConfirm }) => {
-  const [nickname, setNickname] = useState('');
+export const HeaderComponent: React.FC<HeaderComponentProps> = ({
+  onNicknameChange,
+  onNicknameConfirm,
+}) => {
+  const [nickname, setNickname] = useState("");
   const [isConfirmed, setConfirmed] = useState(false);
 
   const handleNicknameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,7 +20,7 @@ export const HeaderComponent: React.FC<HeaderComponentProps> = ({ onNicknameChan
   };
 
   const handleConfirmClick = () => {
-    if (nickname.trim() !== '') {
+    if (nickname.trim() !== "") {
       setConfirmed(true);
       onNicknameConfirm();
     }
@@ -25,10 +28,10 @@ export const HeaderComponent: React.FC<HeaderComponentProps> = ({ onNicknameChan
 
   return (
     <header>
-      <h1 className={styles.example}> Hello Drug(friend tipo) =)</h1>
-      <div>
-        {!isConfirmed && (
-          <>
+      {!isConfirmed && (
+        <>
+          <h1 className={styles.example}> Hello Drug(friend tipo) =)</h1>
+          <div>
             <label htmlFor="nickname">Ваш ник:</label>
             <input
               type="text"
@@ -37,15 +40,11 @@ export const HeaderComponent: React.FC<HeaderComponentProps> = ({ onNicknameChan
               onChange={handleNicknameChange}
             />
             <button onClick={handleConfirmClick}>Подтвердить</button>
-          </>
-        )}{
-          isConfirmed &&(
-            <p>{`ТЫ 👉${nickname} `}</p>
-          )
-        }
-      </div>
+          </div>
+        </>
+      )}
     </header>
   );
-}
+};
 
 export const Header = hot(HeaderComponent);

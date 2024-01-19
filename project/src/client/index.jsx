@@ -3,6 +3,7 @@ import * as ReactDom from "react-dom";
 import { Header } from "./Header/Header.tsx";
 import { Game } from "./Game/Game.ts";
 import * as THREE from "three";
+import "./main.css"
 
 const socket = io();
 
@@ -80,7 +81,6 @@ function App() {
       console.log("0___")
       console.log(id)
       setInterval(() => {
-        console.log(id)
         if (!id) return;
         
         socket.emit("movement", { id, movement });
