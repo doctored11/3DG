@@ -13,8 +13,6 @@ export class Figure {
     this.scene = scene;
     this.color = color;
 
-
-
     //
     // window.addEventListener("click", (event) => this.onClick(event));
   }
@@ -36,6 +34,9 @@ export class Figure {
     return this.mesh.position.clone();
   }
 
-
-
+  public onSelect() {
+    console.log("Я выбран:");
+    console.log(this);
+    console.log("________]");
+  }
 }

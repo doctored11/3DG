@@ -27,7 +27,6 @@ export class Game {
   private playerCamera!: THREE.PerspectiveCamera;
   private board!: Board;
   protected figures: Figure[] = [];
-  protected chesses: ChessPiece[] = [];
 
   constructor(socket: any, key: string, gameZone: HTMLDivElement) {
     this.socket = socket;
@@ -78,17 +77,13 @@ export class Game {
 
     // this.figures=boardCells
 
+    //фигуры по которым может быть клик надо хранить в this.figures
     this.figures = boardCells.reduce((acc, row) => acc.concat(row), []);
-
-    // todo вынести все расстановки фигур в класс доски
-    const redPiece = new ChessPiece(
-      this.scene,
-      this.playerCamera,
-      boardCells[0][1],
-      0xff0000
-    );
-    this.chesses.push(redPiece);
-    this.figures.push(redPiece);
+    this.figures.push(...this.board.getFigures());
+   
+   
+    
+    
 
     this.playerCamera.position.z = 10;
   }
@@ -122,9 +117,7 @@ export class Game {
       // console.log(" update:", players); //вывод игроков получаемых с сервера с их позицией
       this.scene.clear();
       this.board.render();
-      this.chesses.forEach((el) => {
-        el.draw();
-      });
+      
       // console.log(boardCells[0][1]);
       //перемещение игрока(причем максималььно затратное) убрать
       for (const id in players) {
@@ -147,7 +140,7 @@ export class Game {
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = (-event.clientY / window.innerHeight) * 2 + 1;
     this.raycaster.setFromCamera(pointer, this.playerCamera);
-    const intersectionsArray = [];
+    const intersectionsArray: Figure[] = [];
 
     for (const figure of this.figures) {
       console.log("onCLICK!");
@@ -158,14 +151,14 @@ export class Game {
         intersections.length > 0 &&
         intersections[0].object instanceof THREE.Mesh
       ) {
-        intersectionsArray.push(intersections[0].object as THREE.Mesh);
+        intersectionsArray.push(figure);
       }
     }
     if (intersectionsArray.length <= 0) return;
 
     intersectionsArray.sort((a, b) => {
-      const distanceA = a.position.distanceTo(this.raycaster.ray.origin);
-      const distanceB = b.position.distanceTo(this.raycaster.ray.origin);
+      const distanceA = a.mesh.position.distanceTo(this.raycaster.ray.origin);
+      const distanceB = b.mesh.position.distanceTo(this.raycaster.ray.origin);
       return distanceA - distanceB;
     });
 
@@ -173,6 +166,7 @@ export class Game {
 
     const pinkMaterial = new THREE.MeshBasicMaterial({ color: 0x990099 });
 
-    firstIntersection.material = pinkMaterial;
+    firstIntersection.mesh.material = pinkMaterial;
+    firstIntersection.onSelect();
   }
 }
