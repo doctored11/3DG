@@ -3,8 +3,6 @@ import * as THREE from "three";
 export class Figure {
   public mesh: THREE.Mesh;
   protected scene: THREE.Scene;
-  protected raycaster: THREE.Raycaster;
-  protected mouse: THREE.Vector2;
   protected color: number;
   protected camera: THREE.Camera;
 
@@ -14,8 +12,7 @@ export class Figure {
 
     this.scene = scene;
     this.color = color;
-    this.raycaster = new THREE.Raycaster();
-    this.mouse = new THREE.Vector2();
+
 
 
     //
@@ -39,8 +36,6 @@ export class Figure {
     return this.mesh.position.clone();
   }
 
-  protected onMouseDown(event: MouseEvent) {
-    console.log("Нажатие по фигуре ", this);
-  }
+
 
 }

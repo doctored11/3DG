@@ -27,7 +27,7 @@ export class Game {
   private playerCamera!: THREE.PerspectiveCamera;
   private board!: Board;
   protected figures: Figure[] = [];
-  protected chesses: ChessPiece[]=[]
+  protected chesses: ChessPiece[] = [];
 
   constructor(socket: any, key: string, gameZone: HTMLDivElement) {
     this.socket = socket;
@@ -87,7 +87,7 @@ export class Game {
       boardCells[0][1],
       0xff0000
     );
-    this.chesses.push(redPiece)
+    this.chesses.push(redPiece);
     this.figures.push(redPiece);
 
     this.playerCamera.position.z = 10;
@@ -122,9 +122,9 @@ export class Game {
       // console.log(" update:", players); //вывод игроков получаемых с сервера с их позицией
       this.scene.clear();
       this.board.render();
-      this.chesses.forEach((el)=>{
-        el.draw()
-      })
+      this.chesses.forEach((el) => {
+        el.draw();
+      });
       // console.log(boardCells[0][1]);
       //перемещение игрока(причем максималььно затратное) убрать
       for (const id in players) {
@@ -151,27 +151,28 @@ export class Game {
 
     for (const figure of this.figures) {
       console.log("onCLICK!");
-      
+
       const intersections = this.raycaster.intersectObjects([figure.mesh]);
-     
+
       if (
         intersections.length > 0 &&
         intersections[0].object instanceof THREE.Mesh
       ) {
-       
         intersectionsArray.push(intersections[0].object as THREE.Mesh);
-        console.log(intersectionsArray);
       }
     }
-    if (intersectionsArray.length > 0) {
-      const firstIntersection = intersectionsArray[0];
+    if (intersectionsArray.length <= 0) return;
 
-      const blueMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-      // intersectionsArray.forEach(element => {
-      //   element.material = blueMaterial;
-      // });
-      
-      firstIntersection.material = blueMaterial;
-    }
+    intersectionsArray.sort((a, b) => {
+      const distanceA = a.position.distanceTo(this.raycaster.ray.origin);
+      const distanceB = b.position.distanceTo(this.raycaster.ray.origin);
+      return distanceA - distanceB;
+    });
+
+    const firstIntersection = intersectionsArray[0];
+
+    const pinkMaterial = new THREE.MeshBasicMaterial({ color: 0x990099 });
+
+    firstIntersection.material = pinkMaterial;
   }
 }
