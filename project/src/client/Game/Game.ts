@@ -27,6 +27,7 @@ export class Game {
   private playerCamera!: THREE.PerspectiveCamera;
   private board!: Board;
   protected figures: Figure[] = [];
+  protected chesses: ChessPiece[]=[]
 
   constructor(socket: any, key: string, gameZone: HTMLDivElement) {
     this.socket = socket;
@@ -56,6 +57,7 @@ export class Game {
   private onNewEvent(result: string, eventKey?: any) {
     console.log(`событие на ${eventKey || "?"} :`, result);
   }
+
   private initThree() {
     this.playerCamera = new THREE.PerspectiveCamera(
       80,
@@ -71,16 +73,22 @@ export class Game {
 
     this.scene.background = new THREE.Color(0x00ff00);
     this.board = new Board(this.scene, this.playerCamera, 9, 9);
+    this.board.render();
     const boardCells = this.board.getCells();
 
     // this.figures=boardCells
 
-    for (let i = 0; i < boardCells.length; ++i) {
-      for (let j = 0; j < boardCells[i].length; ++j) {
-        this.scene.add(boardCells[i][j].getMesh());
-        this.figures.push(boardCells[i][j]);
-      }
-    }
+    this.figures = boardCells.reduce((acc, row) => acc.concat(row), []);
+
+    // todo вынести все расстановки фигур в класс доски
+    const redPiece = new ChessPiece(
+      this.scene,
+      this.playerCamera,
+      boardCells[0][1],
+      0xff0000
+    );
+    this.chesses.push(redPiece)
+    this.figures.push(redPiece);
 
     this.playerCamera.position.z = 10;
   }
@@ -110,22 +118,15 @@ export class Game {
 
   private render() {
     if (!this.renderer || !this.gameZone) return;
-    console.log("render");
     this.socket.on("state", (players: Record<string, ClientPlayer>) => {
       // console.log(" update:", players); //вывод игроков получаемых с сервера с их позицией
-
       this.scene.clear();
-      const boardCells = this.board.getCells();
-      for (let i = 0; i < boardCells.length; ++i) {
-        for (let j = 0; j < boardCells[i].length; ++j) {
-          const cell = boardCells[i][j];
-          this.scene.add(cell.getMesh());
-        }
-      }
-
-      const redPiece = new ChessPiece(this.scene, boardCells[0][1], "red");
-      redPiece.draw();
-
+      this.board.render();
+      this.chesses.forEach((el)=>{
+        el.draw()
+      })
+      // console.log(boardCells[0][1]);
+      //перемещение игрока(причем максималььно затратное) убрать
       for (const id in players) {
         const player = players[id];
         //этот ад временный - обязательно будет убрано (тест)
@@ -134,15 +135,12 @@ export class Game {
           this.playerCamera.position.set(player.x - 1, player.y - 10, 15);
           this.playerCamera.lookAt(new THREE.Vector3(player.x, player.y, 0));
         }
-
         this.scene.add(cube);
       }
 
       this.renderer.render(this.scene, this.playerCamera);
     });
   }
-
-
 
   protected onClick(event: MouseEvent) {
     const pointer = new THREE.Vector2();
@@ -152,14 +150,27 @@ export class Game {
     const intersectionsArray = [];
 
     for (const figure of this.figures) {
+      console.log("onCLICK!");
+      
       const intersections = this.raycaster.intersectObjects([figure.mesh]);
-      if (intersections.length > 0 && intersections[0].object instanceof THREE.Mesh) {
+     
+      if (
+        intersections.length > 0 &&
+        intersections[0].object instanceof THREE.Mesh
+      ) {
+       
         intersectionsArray.push(intersections[0].object as THREE.Mesh);
+        console.log(intersectionsArray);
       }
     }
     if (intersectionsArray.length > 0) {
       const firstIntersection = intersectionsArray[0];
+
       const blueMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+      // intersectionsArray.forEach(element => {
+      //   element.material = blueMaterial;
+      // });
+      
       firstIntersection.material = blueMaterial;
     }
   }

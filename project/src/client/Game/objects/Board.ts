@@ -23,6 +23,13 @@ export class Board {
       }
     }
   }
+  public render(){
+    for (let i = 0; i < this.cells.length; ++i) {
+      for (let j = 0; j < this.cells[i].length; ++j) {
+        this.scene.add(this.cells[i][j].getMesh());
+      }
+    }
+  }
 
   getAllCellsMeshes(): THREE.Mesh[] {
     const meshes: THREE.Mesh[] = [];

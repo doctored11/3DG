@@ -1,24 +1,23 @@
 import * as THREE from "three";
 import { Cell } from "../Cell";
+import { Figure } from "./Figure";
 
-export class ChessPiece {
+export class ChessPiece extends Figure {
   protected cell: Cell;
-  protected color: string;
-  protected mesh: THREE.Mesh;
-  protected scene: THREE.Scene;
+  public mesh: THREE.Mesh;
+ 
 
 
-  constructor( scene: THREE.Scene,cell: Cell, color: string) {
+  constructor( scene: THREE.Scene,camera: THREE.Camera,cell: Cell, color: number) {
+    super(scene, camera, color); 
     this.cell = cell;
-    this.color = color;
     this.mesh = this.createMesh();
-    this.scene = scene;
-
+   
     this.draw();
     this.mesh.addEventListener("click", this.onClick.bind(this));
 
   }
-  private createMesh(): THREE.Mesh {
+  protected createMesh(): THREE.Mesh {
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({
       color: this.color,

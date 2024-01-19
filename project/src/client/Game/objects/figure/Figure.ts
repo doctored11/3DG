@@ -17,7 +17,6 @@ export class Figure {
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
 
-    this.draw();
 
     //
     // window.addEventListener("click", (event) => this.onClick(event));
@@ -43,4 +42,5 @@ export class Figure {
   protected onMouseDown(event: MouseEvent) {
     console.log("Нажатие по фигуре ", this);
   }
+
 }

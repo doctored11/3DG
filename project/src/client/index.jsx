@@ -82,7 +82,6 @@ function App() {
       console.log(id)
       setInterval(() => {
         if (!id) return;
-        
         socket.emit("movement", { id, movement });
       }, 1000 / 60);
     }
