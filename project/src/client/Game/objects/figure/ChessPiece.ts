@@ -58,13 +58,11 @@ export class ChessPiece extends Figure {
     const allCheses = this.board.getFigures();
 
     const targetCells: Cell[] = [
-      this.cell,
       this.board.getCells()[0][0],
       this.board.getCells()[0][2],
       // получить клетки на которые можно идти для конкретной фигуры
     ];
     const canAttackCells: Cell[] = [
-      this.cell,
       this.board.getCells()[0][0],
       this.board.getCells()[0][2],
       // получить клетки на которых можем бить
