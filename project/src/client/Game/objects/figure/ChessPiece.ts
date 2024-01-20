@@ -2,11 +2,12 @@ import * as THREE from "three";
 import { Cell } from "../Cell";
 import { Figure } from "./Figure";
 import { Board } from "../Board";
+import { BishopFigure } from "./BishopFigure";
 
 export class ChessPiece extends Figure {
   protected cell: Cell;
   public mesh: THREE.Mesh;
-  private board: Board;
+  protected board: Board;
 
   constructor(
     scene: THREE.Scene,
@@ -17,17 +18,18 @@ export class ChessPiece extends Figure {
   ) {
     super(scene, camera, color);
     this.cell = cell;
-    this.mesh = this.createMesh();
+    this.mesh = this.createMesh(1,1);
     this.board = board;
 
     this.draw();
     this.mesh.addEventListener("click", this.onClick.bind(this));
+    
   }
-  protected createMesh(): THREE.Mesh {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
+  protected createMesh(color : number, size: number): THREE.Mesh {
+    const geometry = new THREE.BoxGeometry(size, size, size);
     const material = new THREE.MeshBasicMaterial({
       // color: this.color, тут нужен рандомный цвет для тестирования
-      color: Math.random() * 0xffffff,
+      color: color * 0xffffff,
     });
     return new THREE.Mesh(geometry, material);
   }
@@ -49,7 +51,7 @@ export class ChessPiece extends Figure {
   }
   private onClick(event: THREE.Event) {
     console.log("Фигура была кликнута!", this);
-  }
+  } 
   public onSelect(): { cell: Cell; action: "move" | "attack" }[] {
     //возвращать куда можешь идти
     console.log("Я выбран:");
@@ -57,12 +59,10 @@ export class ChessPiece extends Figure {
     console.log("________]");
     const allCheses = this.board.getFigures();
 
-    const targetCells: Cell[] = [
-      this.board.getCells()[0][0],
-      this.board.getCells()[0][2],
-      // получить клетки на которые можно идти для конкретной фигуры
-    ];
+    console.log(this.canMove())
+    const targetCells: Cell[] = this.canMove();
     const canAttackCells: Cell[] = [
+      
       this.board.getCells()[0][0],
       this.board.getCells()[0][2],
       // получить клетки на которых можем бить
@@ -88,8 +88,10 @@ export class ChessPiece extends Figure {
         arrayOfActions.push({ cell: attackCell, action: "attack" });
       }
     }
-
     //TODO
     return arrayOfActions;
+  }
+  public canMove(): Cell[]{
+    return this.board.getCells()[0]
   }
 }

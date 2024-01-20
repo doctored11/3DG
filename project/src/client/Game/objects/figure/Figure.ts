@@ -8,7 +8,7 @@ export class Figure {
   protected camera: THREE.Camera;
 
   constructor(scene: THREE.Scene, camera: THREE.Camera, color: number) {
-    this.mesh = new THREE.Mesh();
+    this.mesh = this.createMesh(1,1);
     this.camera = camera;
 
     this.scene = scene;
@@ -18,17 +18,15 @@ export class Figure {
     // window.addEventListener("click", (event) => this.onClick(event));
   }
 
-  protected createMesh(
-    geometry: THREE.BufferGeometry,
-    material: THREE.Material
-  ): THREE.Mesh {
+  protected createMesh(color : number,size : number): THREE.Mesh {
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshBasicMaterial({ color: this.color });
     return new THREE.Mesh(geometry, material);
   }
 
   public draw() {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: this.color });
-    this.mesh = this.createMesh(geometry, material);
+    
+    // this.mesh = this.createMesh(geometry, material);
     this.scene.add(this.mesh);
   }
   public getPosition(): THREE.Vector3 {
