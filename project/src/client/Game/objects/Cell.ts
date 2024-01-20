@@ -17,12 +17,14 @@ export class Cell extends Figure {
     scene: THREE.Scene,
     camera: THREE.Camera,
     indexI: number,
-    indexJ: number
+    indexJ: number,
+    id?:number
   ) {
     const color = (indexI + indexJ) % 2 === 0 ? COLOR_WHITE : COLOR_BLACK;
 
     super(scene, camera, color);
     this.basicColor = color;
+    this.id =id
 
     this.position = new THREE.Vector3(
       indexI * CELL_SIZE,
