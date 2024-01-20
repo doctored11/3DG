@@ -34,7 +34,7 @@ export class Board {
   }
   private figuresInit() {
     // тут будет начальная расстановка фигур
-    for (let i = 0; i < this.sizeX; ++i) {
+    for (let i = 0; i < this.sizeX; i=i+2) {
       const buffPice = new ChessPiece(
         this.scene,
         this.camera,
@@ -54,6 +54,12 @@ export class Board {
     this.chesses.forEach((el) => {
       el.draw();
     });
+  }
+  public removeChess(chess:ChessPiece){
+    const index = this.chesses.indexOf(chess);
+    if (index !== -1) {
+      this.chesses.splice(index, 1);
+    }
   }
 
   getAllCellsMeshes(): THREE.Mesh[] {

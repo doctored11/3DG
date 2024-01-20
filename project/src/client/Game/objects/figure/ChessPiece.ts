@@ -26,7 +26,8 @@ export class ChessPiece extends Figure {
   protected createMesh(): THREE.Mesh {
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({
-      color: this.color,
+      // color: this.color, тут нужен рандомный цвет для тестирования
+      color: Math.random() * 0xffffff,
     });
     return new THREE.Mesh(geometry, material);
   }
@@ -49,7 +50,7 @@ export class ChessPiece extends Figure {
   private onClick(event: THREE.Event) {
     console.log("Фигура была кликнута!", this);
   }
-  public onSelect():{ cell: Cell; action: "move" | "attack" }[] {
+  public onSelect(): { cell: Cell; action: "move" | "attack" }[] {
     //возвращать куда можешь идти
     console.log("Я выбран:");
     console.log(this);

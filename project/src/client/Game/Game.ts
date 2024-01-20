@@ -163,6 +163,10 @@ export class Game {
 
     const firstIntersection = intersectionsArray[0];
 
+    const cellsToSHighlight:
+      | { cell: Cell; action: "move" | "attack" }[]
+      | null = firstIntersection.onSelect();
+
     //Зачаток к логике передвижения
     console.log("Готовность двигаться!");
     console.log(this.activeChessFigure);
@@ -175,21 +179,38 @@ export class Game {
       firstIntersection instanceof Cell &&
       firstIntersection.getHighlightStatus()
     ) {
-      console.log("Возможен Мув!");
-      console.log(this.activeChessFigure || "а где?");
+      // console.log("Возможен Мув!");
+      // console.log(this.activeChessFigure || "а где?");
+      // console.log(cellsToSHighlight || "нет выделенных клеток для действий");
+      let action: string = "move";
+      // console.log("___+!");
+      // console.log(cellsToSHighlight);
 
+      this.activeChessFigure?.onSelect()?.forEach((el) => {
+        console.log(el.cell === firstIntersection);
+        if (el.cell === firstIntersection) action = el.action;
+      });
+      console.log(action);
+
+      if (action == "attack") {
+        this.board.getFigures().forEach((chess) => {
+          if (chess.getCell() == firstIntersection) {
+            console.log(
+              "ААА он убит! -> " + JSON.stringify(chess.getPosition())
+            );
+            //да - как то получилось 2 массива из которых надо удалять ( массив на клики и массив на отрисовку)
+            this.board.removeChess(chess);
+            this.removeFromRaycastFigures(chess);
+          }
+        });
+      }
       this.activeChessFigure?.move(firstIntersection);
       this.cellColorOf();
     } else if (firstIntersection instanceof Cell) {
-
       this.cellColorOf();
     }
 
-    const cellsToSHighlight:
-      | { cell: Cell; action: "move" | "attack" }[]
-      | null = firstIntersection.onSelect();
-
-    console.log(cellsToSHighlight);
+    // console.log(cellsToSHighlight);
     cellsToSHighlight?.forEach((el) => {
       el.cell.setHighlight(true, el.action == "move" ? 0x0066bb : 0xaa1177);
     });
@@ -202,6 +223,13 @@ export class Game {
       if (figure instanceof Cell) {
         figure.setHighlight(false);
       }
+    }
+  }
+  removeFromRaycastFigures(item: Figure) {
+    const index = this.figures.indexOf(item);
+
+    if (index !== -1) {
+      this.figures.splice(index, 1);
     }
   }
 }
