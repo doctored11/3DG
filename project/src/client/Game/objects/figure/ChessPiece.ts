@@ -39,6 +39,9 @@ export class ChessPiece extends Figure {
     this.cell = newCell;
     this.draw();
   }
+  public getCell(): Cell {
+    return this.cell;
+  }
 
   remove() {
     this.scene.remove(this.mesh);
@@ -46,17 +49,48 @@ export class ChessPiece extends Figure {
   private onClick(event: THREE.Event) {
     console.log("Фигура была кликнута!", this);
   }
-  public onSelect(): Cell[] | null {
+  public onSelect():{ cell: Cell; action: "move" | "attack" }[] {
     //возвращать куда можешь идти
     console.log("Я выбран:");
     console.log(this);
     console.log("________]");
+    const allCheses = this.board.getFigures();
 
-    //TODO
-    return [
+    const targetCells: Cell[] = [
       this.cell,
       this.board.getCells()[0][0],
       this.board.getCells()[0][2],
+      // получить клетки на которые можно идти для конкретной фигуры
     ];
+    const canAttackCells: Cell[] = [
+      this.cell,
+      this.board.getCells()[0][0],
+      this.board.getCells()[0][2],
+      // получить клетки на которых можем бить
+    ];
+
+    const occupiedCells: Cell[] = [];
+    const arrayOfActions: { cell: Cell; action: "move" | "attack" }[] = [];
+
+    for (const targetCell of targetCells) {
+      const isOccupied = allCheses.some(
+        (chess) => chess.getCell() === targetCell
+      );
+      if (!isOccupied) {
+        arrayOfActions.push({ cell: targetCell, action: "move" });
+      }
+    }
+
+    for (const attackCell of canAttackCells) {
+      const attackedChess = allCheses.find(
+        (chess) => chess.getCell() === attackCell
+      );
+      if (attackedChess) {
+        arrayOfActions.push({ cell: attackCell, action: "attack" });
+      }
+    }
+
+    //TODO
+    return arrayOfActions;
   }
 }

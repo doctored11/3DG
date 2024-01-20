@@ -35,7 +35,7 @@ export class Figure {
     return this.mesh.position.clone();
   }
 
-  public onSelect():(Cell[]|null) {
+  public onSelect():{ cell: Cell; action: "move" | "attack" }[]|null {
     console.log("Я выбран:");
     console.log(this);
     console.log("________]");

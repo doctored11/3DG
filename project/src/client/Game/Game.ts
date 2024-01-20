@@ -144,16 +144,7 @@ export class Game {
 
     for (const figure of this.figures) {
       console.log("onCLICK!");
-
-      if (figure instanceof Cell) {
-        if (this.activeChessFigure == null) {
-          // this.activeCell = null;
-          figure.setHighlight(false);
-        }
-      }
-
       const intersections = this.raycaster.intersectObjects([figure.mesh]);
-
       if (
         intersections.length > 0 &&
         intersections[0].object instanceof THREE.Mesh
@@ -176,19 +167,18 @@ export class Game {
 
     // firstIntersection.mesh.material = pinkMaterial;
 
-    const cellsToSHighlight: Cell[] | null = firstIntersection.onSelect();
+    
 
     // firstIntersection фигура которая может сходить(или клетка))
     // cellsToSHighlight - это массив клеток куда он может сходить
-    cellsToSHighlight?.forEach((el) => {
-      el.setHighlight(true);
-    });
 
     //Зачаток к логике передвижения
     console.log("Готовность двигаться!");
     console.log(this.activeChessFigure);
     // console.log(this.activeCell)
     if (firstIntersection instanceof ChessPiece) {
+      this.activeChessFigure = null;
+      this.cellColorOf();
       this.activeChessFigure = firstIntersection;
       console.log("Выбрана основная фигура!");
     } else if (
@@ -200,7 +190,27 @@ export class Game {
 
       this.activeChessFigure?.move(firstIntersection);
       this.activeChessFigure = null;
+      this.cellColorOf();
       //потом подумаем как убирать выделение
+    }
+
+    const cellsToSHighlight:
+      | { cell: Cell; action: "move" | "attack" }[]
+      | null = firstIntersection.onSelect();
+
+    console.log(cellsToSHighlight);
+    cellsToSHighlight?.forEach((el) => {
+      el.cell.setHighlight(true, el.action == "move" ? 0x0066bb : 0xaa1177);
+    });
+  }
+  cellColorOf() {
+    for (const figure of this.figures) {
+      if (figure instanceof Cell) {
+        if (this.activeChessFigure == null) {
+          // this.activeCell = null;
+          figure.setHighlight(false);
+        }
+      }
     }
   }
 }
