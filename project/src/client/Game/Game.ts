@@ -168,7 +168,6 @@ export class Game {
     console.log(this.activeChessFigure);
     // console.log(this.activeCell)
     if (firstIntersection instanceof ChessPiece) {
-      this.activeChessFigure = null;
       this.cellColorOf();
       this.activeChessFigure = firstIntersection;
       console.log("Выбрана основная фигура!");
@@ -180,9 +179,12 @@ export class Game {
       console.log(this.activeChessFigure || "а где?");
 
       this.activeChessFigure?.move(firstIntersection);
-      this.activeChessFigure = null;
+      this.cellColorOf();
+    } else if (firstIntersection instanceof Cell) {
+
       this.cellColorOf();
     }
+
     const cellsToSHighlight:
       | { cell: Cell; action: "move" | "attack" }[]
       | null = firstIntersection.onSelect();
@@ -194,12 +196,11 @@ export class Game {
   }
 
   cellColorOf() {
+    this.activeChessFigure = null;
+
     for (const figure of this.figures) {
       if (figure instanceof Cell) {
-        if (this.activeChessFigure == null) {
-          // this.activeCell = null;
-          figure.setHighlight(false);
-        }
+        figure.setHighlight(false);
       }
     }
   }
