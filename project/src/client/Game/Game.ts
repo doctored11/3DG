@@ -163,15 +163,6 @@ export class Game {
 
     const firstIntersection = intersectionsArray[0];
 
-    // const pinkMaterial = new THREE.MeshBasicMaterial({ color: 0x990099 });
-
-    // firstIntersection.mesh.material = pinkMaterial;
-
-    
-
-    // firstIntersection фигура которая может сходить(или клетка))
-    // cellsToSHighlight - это массив клеток куда он может сходить
-
     //Зачаток к логике передвижения
     console.log("Готовность двигаться!");
     console.log(this.activeChessFigure);
@@ -191,9 +182,7 @@ export class Game {
       this.activeChessFigure?.move(firstIntersection);
       this.activeChessFigure = null;
       this.cellColorOf();
-      //потом подумаем как убирать выделение
     }
-
     const cellsToSHighlight:
       | { cell: Cell; action: "move" | "attack" }[]
       | null = firstIntersection.onSelect();
@@ -203,6 +192,7 @@ export class Game {
       el.cell.setHighlight(true, el.action == "move" ? 0x0066bb : 0xaa1177);
     });
   }
+
   cellColorOf() {
     for (const figure of this.figures) {
       if (figure instanceof Cell) {
