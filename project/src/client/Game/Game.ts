@@ -137,8 +137,8 @@ export class Game {
       this.renderer.render(this.scene, this.playerCamera);
     });
     this.socket.on("board update", (data: ChessData[]) => {
-      console.log("обновление доски");
-
+      // console.log("обновление доски");
+      // console.log(data)
       this.board.restoreFigures(data);
       this.board.render();
       this.renderer.render(this.scene, this.playerCamera);
@@ -206,6 +206,7 @@ export class Game {
       this.cellColorOf();
       this.activeChessFigure = firstIntersection;
       console.log("Выбрана основная фигура!");
+      console.log(firstIntersection)
     } else if (
       firstIntersection instanceof Cell &&
       firstIntersection.getHighlightStatus()

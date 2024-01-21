@@ -48,19 +48,18 @@ export class Board {
         this.camera,
         this,
         this.cells[i][1],
-        1
+        Math.round(Math.random() * 0xffffff) //простите если сломал (но мне нужен цвет на этом этапе)
       );
       this.chesses.push(pawn);
     }
-    for (let j = 2 ; j < this.sizeX - 1; j= j + 3){
+    for (let j = 2; j < this.sizeX - 1; j = j + 3) {
       const bishop = new BishopFigure(
         this.scene,
         this.camera,
         this,
         this.cells[j][0],
-        0.5,
-        "HUYYY" + j
-      )
+        Math.round(Math.random() * 0xffffff) //простите если сломал (но мне нужен цвет на этом этапе)
+      );
       this.chesses.push(bishop);
     }
   }
@@ -127,17 +126,50 @@ export class Board {
         }
       } else {
         const cell = this.getCellById(el.cellId);
-        if (cell) {
-          const newChess = new ChessPiece(
-            this.scene,
-            this.camera,
-            this,
-            cell,
-            el.color,
-            el.id
-          );
-          this.chesses.push(newChess);
+        if (!cell) return;
+        const type = el.type;
+        let newChess: ChessPiece|null=null;
+        console.log("типок: ",type);
+        switch (type) {
+          case "pawn":
+            newChess = new PawnFigure(
+              this.scene,
+              this.camera,
+              this,
+              cell,
+              el.color,
+              el.id
+            );
+            console.log(newChess);
+            break
+          case "bishop":
+            newChess = new BishopFigure(
+              this.scene,
+              this.camera,
+              this,
+              cell,
+              el.color,
+              el.id
+            );
+            console.log(newChess);
+            break
+          
         }
+        if(!newChess) return
+
+        this.chesses.push(newChess);
+        console.log(this.chesses)
+        // if (cell) {
+        //   const newChess = new ChessPiece(
+        //     this.scene,
+        //     this.camera,
+        //     this,
+        //     cell,
+        //     el.color,
+        //     el.id
+        //   );
+        //   this.chesses.push(newChess);
+        // }
       }
     });
 
@@ -152,8 +184,10 @@ export class Board {
       const position = chess.getCell().getId();
       const id = chess.getId();
       const color = chess.getColor();
+      const type = chess.getType();
       return {
         id: id,
+        type: type,
         color: color,
         cellId: position,
       };
@@ -174,6 +208,7 @@ export class Board {
 
 export interface ChessData {
   id: number;
+  type: string;
   color: number;
   cellId: number;
 }
