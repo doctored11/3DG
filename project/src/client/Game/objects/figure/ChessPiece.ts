@@ -91,7 +91,9 @@ export class ChessPiece extends Figure {
     //TODO
     return arrayOfActions;
   }
+
   public canMove(): Cell[]{
-    return this.board.getCells()[0]
+    return this.board.getCells()[0];
   }
+  
 }
