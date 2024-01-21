@@ -15,7 +15,7 @@ export class PawnFigure extends ChessPiece {
     id?: number | null
   ) {
     super(scene, camera, board, cell, color, id || null);
-   
+
     this.cell = cell;
     this.scene = scene;
 
@@ -50,4 +50,6 @@ export class PawnFigure extends ChessPiece {
 
     return [cellArr[indexX][indexY + 1], cellArr[indexX][indexY + 2]];
   }
+  
+  
 }
