@@ -13,10 +13,11 @@ export class BishopFigure extends ChessPiece{
         board: Board,
         cell: Cell,
         color: number,
+        teamId:0|1,
         id?:number|null
         ) {
 
-        super(scene,camera,board,cell,color,id||null);
+            super(scene, camera, board, cell, color, id || null,teamId);
 
     
         this.cell = cell;

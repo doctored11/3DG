@@ -10,6 +10,7 @@ export class ChessPiece extends Figure {
   protected board: Board;
   protected id: number;
   protected type: string = "chess";
+  protected teamId:0|1;
 
   constructor(
     scene: THREE.Scene,
@@ -17,7 +18,8 @@ export class ChessPiece extends Figure {
     board: Board,
     cell: Cell,
     color: number,
-    id: number | null
+    id: number | null,
+    teamId: 0 | 1
   ) {
     super(scene, camera, color);
     this.cell = cell;
@@ -25,6 +27,7 @@ export class ChessPiece extends Figure {
     this.board = board;
     this.id = id || Math.round(Math.random() * 8000) + 1;
     this.draw();
+    this.teamId = teamId || 0;
     this.mesh.addEventListener("click", this.onClick.bind(this));
   }
   protected createMesh(color: number, size: number): THREE.Mesh {
@@ -48,6 +51,9 @@ export class ChessPiece extends Figure {
   }
   public getType(): string {
     return this.type;
+  }
+  public getTeamId():0|1{
+    return this.teamId;
   }
 
   remove() {
@@ -91,11 +97,11 @@ export class ChessPiece extends Figure {
     return arrayOfActions;
   }
   public canMove(): Cell[] {
-    console.log(this, "CanMove родителя")
+    console.log(this, "CanMove родителя");
     return this.board.getCells()[0];
   }
 
-  public canAttack(): Cell[]{
+  public canAttack(): Cell[] {
     return this.board.getCells()[0];
   }
 }

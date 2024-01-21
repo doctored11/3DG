@@ -152,16 +152,6 @@ export class Game {
     this.raycaster.setFromCamera(pointer, this.playerCamera);
     const intersectionsArray: Figure[] = [];
 
-    // for (const figure of this.figures) {
-    //   console.log("onCLICK!");
-    //   const intersections = this.raycaster.intersectObjects([figure.mesh]);
-    //   if (
-    //     intersections.length > 0 &&
-    //     intersections[0].object instanceof THREE.Mesh
-    //   ) {
-    //     intersectionsArray.push(figure);
-    //   }
-    // }
 
     for (const figure of this.board.getFigures()) {
       console.log("onCLICK!");

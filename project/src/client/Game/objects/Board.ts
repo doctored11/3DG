@@ -48,7 +48,8 @@ export class Board {
         this.camera,
         this,
         this.cells[i][1],
-        Math.round(Math.random() * 0xffffff) //простите если сломал (но мне нужен цвет на этом этапе)
+        Math.round(Math.random() * 0xffffff)-0xfff000, //простите если сломал (но мне нужен цвет на этом этапе)
+        1
       );
       this.chesses.push(pawn);
     }
@@ -58,10 +59,23 @@ export class Board {
         this.camera,
         this,
         this.cells[j][0],
-        Math.round(Math.random() * 0xffffff) //простите если сломал (но мне нужен цвет на этом этапе)
+        Math.round(Math.random() * 0xffffff)-0xfff000, //простите если сломал (но мне нужен цвет на этом этапе)
+        1
       );
       this.chesses.push(bishop);
     }
+    for (let i = 0; i < this.sizeX; i++) {
+      const pawn = new PawnFigure(
+        this.scene,
+        this.camera,
+        this,
+        this.cells[i][this.sizeY-1],
+        Math.round(Math.random() * 0xfff000), //простите если сломал (но мне нужен цвет на этом этапе)
+        0
+      );
+      this.chesses.push(pawn);
+    }
+    
   }
   public render(): void {
     for (let i = 0; i < this.cells.length; ++i) {
@@ -128,8 +142,8 @@ export class Board {
         const cell = this.getCellById(el.cellId);
         if (!cell) return;
         const type = el.type;
-        let newChess: ChessPiece|null=null;
-        console.log("типок: ",type);
+        let newChess: ChessPiece | null = null;
+        console.log("типок: ", type);
         switch (type) {
           case "pawn":
             newChess = new PawnFigure(
@@ -138,10 +152,11 @@ export class Board {
               this,
               cell,
               el.color,
+              el.teamId,
               el.id
             );
             console.log(newChess);
-            break
+            break;
           case "bishop":
             newChess = new BishopFigure(
               this.scene,
@@ -149,16 +164,16 @@ export class Board {
               this,
               cell,
               el.color,
+              el.teamId,
               el.id
             );
             console.log(newChess);
-            break
-          
+            break;
         }
-        if(!newChess) return
+        if (!newChess) return;
 
         this.chesses.push(newChess);
-        console.log(this.chesses)
+        console.log(this.chesses);
         // if (cell) {
         //   const newChess = new ChessPiece(
         //     this.scene,
@@ -185,10 +200,12 @@ export class Board {
       const id = chess.getId();
       const color = chess.getColor();
       const type = chess.getType();
+      const teamId = chess.getTeamId();
       return {
         id: id,
         type: type,
         color: color,
+        teamId: teamId,
         cellId: position,
       };
     });
@@ -211,4 +228,5 @@ export interface ChessData {
   type: string;
   color: number;
   cellId: number;
+  teamId: 0 | 1;
 }
