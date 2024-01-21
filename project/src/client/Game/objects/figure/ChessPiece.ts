@@ -65,11 +65,7 @@ export class ChessPiece extends Figure {
 
     console.log(this.canMove());
     const targetCells: Cell[] = this.canMove();
-    const canAttackCells: Cell[] = [
-      this.board.getCells()[0][0],
-      this.board.getCells()[0][2],
-      // получить клетки на которых можем бить
-    ];
+    const canAttackCells: Cell[] = this.canAttack();
 
     const occupiedCells: Cell[] = [];
     const arrayOfActions: { cell: Cell; action: "move" | "attack" }[] = [];
@@ -96,6 +92,10 @@ export class ChessPiece extends Figure {
   }
   public canMove(): Cell[] {
     console.log(this, "CanMove родителя")
+    return this.board.getCells()[0];
+  }
+
+  public canAttack(): Cell[]{
     return this.board.getCells()[0];
   }
 }

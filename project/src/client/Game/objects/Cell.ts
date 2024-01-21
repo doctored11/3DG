@@ -12,6 +12,9 @@ export class Cell extends Figure {
   private position: THREE.Vector3;
   private isHighlight: boolean;
   private basicColor: number;
+  private indexX : number;
+  private indexY : number;
+
 
   constructor(
     scene: THREE.Scene,
@@ -25,6 +28,8 @@ export class Cell extends Figure {
     super(scene, camera, color);
     this.basicColor = color;
     this.id =id
+    this.indexX = indexI;
+    this.indexY = indexJ;
 
     this.position = new THREE.Vector3(
       indexI * CELL_SIZE,
@@ -72,5 +77,8 @@ export class Cell extends Figure {
   }
   public draw() {
     this.scene.add(this.getMesh());
+  }
+  public getIndex(){
+    return [this.indexX, this.indexY];
   }
 }

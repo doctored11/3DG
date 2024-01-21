@@ -31,24 +31,43 @@ export class PawnFigure extends ChessPiece {
   }
 
   public canMove(): Cell[] {
-    let pos = this.cell.getPosition();
     let cellArr = this.board.getCells();
-    let canMoveCell: Cell[] = [];
+    let indexX = this.cell.getIndex()[0];
+    let indexY = this.cell.getIndex()[1];
+    if (indexY == 1){
+        return [cellArr[indexX][indexY + 1], cellArr[indexX][indexY + 2]];
+    }
+    return [cellArr[indexX][indexY+1]] 
+    
+  }
+  public canAttack(): Cell[]{
+    const cellArr = this.board.getCells();
+    const [ indexX, indexY ]= this.cell.getIndex();
+    let canAttackCells: Cell[] = []; 
 
-    let indexX = 0;
-    let indexY = 0;
+    const attackMoves = [
+        { deltaX: -1, deltaY: 1 }, 
+        { deltaX: 1, deltaY: 1 }, 
+      ];
+    
+    for (const move of attackMoves){
+        const newIndexX = indexX + move.deltaX;
+        const newIndexY = indexY + move.deltaY;
 
-    for (let i = 0; i < cellArr.length; i++) {
-      for (let j = 0; j < cellArr[i].length; j++) {
-        if (this.cell === cellArr[i][j]) {
-          indexX = i;
-          indexY = j;
-          break;
+        if (
+            newIndexX >= 0 &&
+            newIndexX < cellArr.length &&
+            newIndexY >= 0 &&
+            newIndexY < cellArr[0].length
+        ) {
+            const targetCell = cellArr[newIndexX][newIndexY];
+
+
+            canAttackCells.push(targetCell);
         }
-      }
     }
 
-    return [cellArr[indexX][indexY + 1], cellArr[indexX][indexY + 2]];
+    return canAttackCells; 
   }
   
   
