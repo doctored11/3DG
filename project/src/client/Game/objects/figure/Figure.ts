@@ -6,13 +6,16 @@ export class Figure {
   protected scene: THREE.Scene;
   protected color: number;
   protected camera: THREE.Camera;
+  protected id?: number;
 
-  constructor(scene: THREE.Scene, camera: THREE.Camera, color: number) {
+  constructor(scene: THREE.Scene, camera: THREE.Camera, color: number, id?:number|null) {
+    // this.mesh = new THREE.Mesh();
     this.mesh = this.createMesh(1,1);
     this.camera = camera;
 
     this.scene = scene;
     this.color = color;
+    this.id = id||Math.round(Math.random() * 5000)-200;
 
     //
     // window.addEventListener("click", (event) => this.onClick(event));
@@ -33,11 +36,17 @@ export class Figure {
     return this.mesh.position.clone();
   }
 
-  public onSelect():{ cell: Cell; action: "move" | "attack" }[]|null {
+  public onSelect(): { cell: Cell; action: "move" | "attack" }[] | null {
     console.log("Я выбран:");
     console.log(this);
     console.log("________]");
 
-    return null
+    return null;
+  }
+  public getColor(): number {
+    return this.color;
+  }
+  public getId(): number {
+    return this.id||-1;
   }
 }

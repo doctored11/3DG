@@ -5,25 +5,26 @@ import { ChessPiece } from "./ChessPiece";
 
 export class BishopFigure extends ChessPiece{
     
-    comment : string;
+    comment : string="-_-";
+    protected type: string='bishop'
     constructor(
         scene: THREE.Scene,
         camera: THREE.Camera,
         board: Board,
         cell: Cell,
         color: number,
-        comment : string
+        id?:number|null
         ) {
 
-        super(scene,camera,board,cell,color);
+        super(scene,camera,board,cell,color,id||null);
 
-        this.color = 0.5;
+    
         this.cell = cell;
         this.scene = scene;
-        this.comment = comment;
+        
         this.board = board;
 
-        this.mesh = this.createMesh(this.color, 3);
+        this.mesh = this.createMesh(this.color, 3);//ну это жесткий прикол -_-
         
         this.draw()
 

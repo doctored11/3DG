@@ -5,6 +5,7 @@ import { Board } from "./objects/Board";
 import { ChessPiece } from "./objects/figure/ChessPiece";
 import { Figure } from "./objects/figure/Figure";
 import { Cell } from "./objects/Cell";
+import { ChessData } from "./objects/Board";
 
 interface ClientPlayer {
   x: number;
@@ -27,7 +28,6 @@ export class Game {
   private renderer!: THREE.WebGLRenderer;
   private playerCamera!: THREE.PerspectiveCamera;
   private board!: Board;
-  protected figures: Figure[] = [];
 
   private activeChessFigure: ChessPiece | null = null;
   // private activeCell: Cell | null = null;
@@ -46,6 +46,11 @@ export class Game {
   private setupEventHandlers() {
     this.socket.emit("new player");
     this.startPlayerGame();
+
+    const chessArr = this.board.getChessToSend();
+    console.log(chessArr);
+    this.socket.emit("board update", chessArr);
+
     this.render();
   }
   private listen(key: string): Promise<any> {
@@ -75,15 +80,13 @@ export class Game {
     this.gameZone.appendChild(this.renderer.domElement);
 
     this.scene.background = new THREE.Color(0x00ff00);
+
     this.board = new Board(this.scene, this.playerCamera, 9, 9);
     this.board.render();
+
     const boardCells = this.board.getCells();
 
     // this.figures=boardCells
-
-    //фигуры по которым может быть клик надо хранить в this.figures
-    this.figures = boardCells.reduce((acc, row) => acc.concat(row), []);
-    this.figures.push(...this.board.getFigures());
 
     this.playerCamera.position.z = 10;
   }
@@ -133,6 +136,13 @@ export class Game {
 
       this.renderer.render(this.scene, this.playerCamera);
     });
+    this.socket.on("board update", (data: ChessData[]) => {
+      // console.log("обновление доски");
+      // console.log(data)
+      this.board.restoreFigures(data);
+      this.board.render();
+      this.renderer.render(this.scene, this.playerCamera);
+    });
   }
 
   protected onClick(event: MouseEvent) {
@@ -142,7 +152,28 @@ export class Game {
     this.raycaster.setFromCamera(pointer, this.playerCamera);
     const intersectionsArray: Figure[] = [];
 
-    for (const figure of this.figures) {
+    // for (const figure of this.figures) {
+    //   console.log("onCLICK!");
+    //   const intersections = this.raycaster.intersectObjects([figure.mesh]);
+    //   if (
+    //     intersections.length > 0 &&
+    //     intersections[0].object instanceof THREE.Mesh
+    //   ) {
+    //     intersectionsArray.push(figure);
+    //   }
+    // }
+
+    for (const figure of this.board.getFigures()) {
+      console.log("onCLICK!");
+      const intersections = this.raycaster.intersectObjects([figure.mesh]);
+      if (
+        intersections.length > 0 &&
+        intersections[0].object instanceof THREE.Mesh
+      ) {
+        intersectionsArray.push(figure);
+      }
+    }
+    for (const figure of this.board.getFlatCells()) {
       console.log("onCLICK!");
       const intersections = this.raycaster.intersectObjects([figure.mesh]);
       if (
@@ -175,6 +206,7 @@ export class Game {
       this.cellColorOf();
       this.activeChessFigure = firstIntersection;
       console.log("Выбрана основная фигура!");
+      console.log(firstIntersection)
     } else if (
       firstIntersection instanceof Cell &&
       firstIntersection.getHighlightStatus()
@@ -200,7 +232,6 @@ export class Game {
             );
             //да - как то получилось 2 массива из которых надо удалять ( массив на клики и массив на отрисовку)
             this.board.removeChess(chess);
-            this.removeFromRaycastFigures(chess);
           }
         });
       }
@@ -211,6 +242,10 @@ export class Game {
     }
 
     // console.log(cellsToSHighlight);
+    console.log("ТУТ ПОПЫКТКА ОТПРАВИТЬ");
+    const chessArr = this.board.getChessToSend();
+    console.log(chessArr);
+    this.socket.emit("board update", chessArr);
     cellsToSHighlight?.forEach((el) => {
       el.cell.setHighlight(true, el.action == "move" ? 0x0066bb : 0xaa1177);
     });
@@ -219,17 +254,10 @@ export class Game {
   cellColorOf() {
     this.activeChessFigure = null;
 
-    for (const figure of this.figures) {
+    for (const figure of this.board.getFlatCells()) {
       if (figure instanceof Cell) {
         figure.setHighlight(false);
       }
-    }
-  }
-  removeFromRaycastFigures(item: Figure) {
-    const index = this.figures.indexOf(item);
-
-    if (index !== -1) {
-      this.figures.splice(index, 1);
     }
   }
 }
