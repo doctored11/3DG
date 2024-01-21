@@ -36,23 +36,12 @@ export class BishopFigure extends ChessPiece{
         this.scene.add(this.mesh);
     }
 
-    // public canMove(){
-    //     let pos = this.cell.getPosition()
-    //     let cellArr = this.board.getCells();
-    //     let canMoveCell: Cell[] = [];
-
-    //     let indexX;
-    //     let indexY;
-
-    //     for (let i = 0; i < cellArr.length; i++){
-    //         for (let j = 0; j < cellArr[i].length; j++){
-    //             if (this.cell === cellArr[i][j]){
-    //                 indexX = i;
-    //                 indexY = j;
-    //                 break;
-    //             }
-    //         }
-    //     }
+    public canMove(): Cell[] {
+        const cellArr = this.board.getCells();
+        const [indexX,indexY] = this.cell.getIndex();
+        let canMoveCells : Cell[] = [];
+        return []
+    }
         
 
     // }

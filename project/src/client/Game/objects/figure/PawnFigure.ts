@@ -31,9 +31,8 @@ export class PawnFigure extends ChessPiece {
   }
 
   public canMove(): Cell[] {
-    let cellArr = this.board.getCells();
-    let indexX = this.cell.getIndex()[0];
-    let indexY = this.cell.getIndex()[1];
+    const cellArr = this.board.getCells();
+    const [ indexX, indexY ]= this.cell.getIndex();
     if (indexY == 1){
         return [cellArr[indexX][indexY + 1], cellArr[indexX][indexY + 2]];
     }
