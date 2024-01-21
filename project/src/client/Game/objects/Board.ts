@@ -1,6 +1,7 @@
 import { Cell } from "./Cell";
+import { BishopFigure } from "./figure/BishopFigure";
 import { ChessPiece } from "./figure/ChessPiece";
-
+import { PawnFigure } from "./figure/PawnFigure";
 export class Board {
   private cells: Cell[][] = [];
   private sizeX;
@@ -41,15 +42,26 @@ export class Board {
   }
   private figuresInit(): void {
     // тут будет начальная расстановка фигур
-    for (let i = 0; i < this.sizeX; i = i + 2) {
-      const buffPice = new ChessPiece(
+    for (let i = 0; i < this.sizeX; i++) {
+      const pawn = new PawnFigure(
         this.scene,
         this.camera,
         this,
-        this.cells[i][3],
-        0xff0000
+        this.cells[i][1],
+        1
       );
-      this.chesses.push(buffPice);
+      this.chesses.push(pawn);
+    }
+    for (let j = 2 ; j < this.sizeX - 1; j= j + 3){
+      const bishop = new BishopFigure(
+        this.scene,
+        this.camera,
+        this,
+        this.cells[j][0],
+        0.5,
+        "HUYYY" + j
+      )
+      this.chesses.push(bishop);
     }
   }
   public render(): void {
