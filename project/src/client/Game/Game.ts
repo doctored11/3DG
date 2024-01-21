@@ -152,7 +152,6 @@ export class Game {
     this.raycaster.setFromCamera(pointer, this.playerCamera);
     const intersectionsArray: Figure[] = [];
 
-
     for (const figure of this.board.getFigures()) {
       console.log("onCLICK!");
       const intersections = this.raycaster.intersectObjects([figure.mesh]);
@@ -196,7 +195,7 @@ export class Game {
       this.cellColorOf();
       this.activeChessFigure = firstIntersection;
       console.log("Выбрана основная фигура!");
-      console.log(firstIntersection)
+      console.log(firstIntersection);
     } else if (
       firstIntersection instanceof Cell &&
       firstIntersection.getHighlightStatus()
@@ -216,16 +215,23 @@ export class Game {
 
       if (action == "attack") {
         this.board.getFigures().forEach((chess) => {
-          if (chess.getCell() == firstIntersection) {
+          if (
+            chess.getCell() == firstIntersection &&
+            chess.getTeamId() != this.activeChessFigure?.getTeamId()
+          ) {
             console.log(
               "ААА он убит! -> " + JSON.stringify(chess.getPosition())
             );
             //да - как то получилось 2 массива из которых надо удалять ( массив на клики и массив на отрисовку)
             this.board.removeChess(chess);
+            this.activeChessFigure?.move(firstIntersection);
           }
         });
       }
-      this.activeChessFigure?.move(firstIntersection);
+      if (action == "move") {
+        this.activeChessFigure?.move(firstIntersection);
+      }
+
       this.cellColorOf();
     } else if (firstIntersection instanceof Cell) {
       this.cellColorOf();

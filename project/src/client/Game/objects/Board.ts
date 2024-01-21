@@ -48,7 +48,7 @@ export class Board {
         this.camera,
         this,
         this.cells[i][1],
-        Math.round(Math.random() * 0xffffff)-0xfff000, //простите если сломал (но мне нужен цвет на этом этапе)
+        Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6, //простите если сломал (но мне нужен цвет на этом этапе)
         1
       );
       this.chesses.push(pawn);
@@ -59,7 +59,7 @@ export class Board {
         this.camera,
         this,
         this.cells[j][0],
-        Math.round(Math.random() * 0xffffff)-0xfff000, //простите если сломал (но мне нужен цвет на этом этапе)
+        Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
         1
       );
       this.chesses.push(bishop);
@@ -69,13 +69,12 @@ export class Board {
         this.scene,
         this.camera,
         this,
-        this.cells[i][this.sizeY-1],
-        Math.round(Math.random() * 0xfff000), //простите если сломал (но мне нужен цвет на этом этапе)
+        this.cells[i][this.sizeY - 1],
+        Math.round(Math.random() * 0xFFFFFF/8), //простите если сломал (но мне нужен цвет на этом этапе)
         0
       );
       this.chesses.push(pawn);
     }
-    
   }
   public render(): void {
     for (let i = 0; i < this.cells.length; ++i) {

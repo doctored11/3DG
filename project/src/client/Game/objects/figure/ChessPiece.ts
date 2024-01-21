@@ -10,7 +10,7 @@ export class ChessPiece extends Figure {
   protected board: Board;
   protected id: number;
   protected type: string = "chess";
-  protected teamId:0|1;
+  protected teamId: 0 | 1;
 
   constructor(
     scene: THREE.Scene,
@@ -52,7 +52,7 @@ export class ChessPiece extends Figure {
   public getType(): string {
     return this.type;
   }
-  public getTeamId():0|1{
+  public getTeamId(): 0 | 1 {
     return this.teamId;
   }
 
@@ -87,7 +87,9 @@ export class ChessPiece extends Figure {
 
     for (const attackCell of canAttackCells) {
       const attackedChess = allCheses.find(
-        (chess) => chess.getCell() === attackCell
+        (chess) =>
+          chess.getCell() === attackCell &&
+          chess.getTeamId() != this.getTeamId()
       );
       if (attackedChess) {
         arrayOfActions.push({ cell: attackCell, action: "attack" });
