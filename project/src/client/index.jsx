@@ -3,7 +3,9 @@ import * as ReactDom from "react-dom";
 import { Header } from "./Header/Header.tsx";
 import { Game } from "./Game/Game.ts";
 import * as THREE from "three";
-import "./main.css"
+import "./main.css";
+import { MainEntrance } from "./MainEntrance/MainEntrance.tsx";
+import { MainMenu } from "./MainMenu/MainMenu.tsx";
 
 const socket = io();
 
@@ -11,17 +13,19 @@ const gameZone = document.getElementById("game-zone");
 
 function App() {
   const [playerNickname, setPlayerNickname] = React.useState("");
-  const [isNicknameConfirmed, setNicknameConfirmed] = React.useState(false);
+  // const [isNicknameConfirmed, setNicknameConfirmed] = React.useState(false);
+  const [typeEvent, setTypeEvent] = React.useState("");
 
   function handleNicknameConfirm() {
     console.log("Никнейм :", playerNickname);
     socket.emit("new player", playerNickname);
-    setNicknameConfirmed(true);
   }
-  
 
   React.useEffect(() => {
-    if (!isNicknameConfirmed) return;
+    console.log(typeEvent);
+    if (typeEvent != "create") return; //потом поменять логику
+    handleNicknameConfirm();
+
     const game = new Game(socket, "game1", gameZone); //ключ по которому читает сервер(как бы ключ игры потом наверное)
     const usersPromise = game.listen("users update");
     const myUserPromise = game.listen("generate");
@@ -77,23 +81,34 @@ function App() {
     //
     //
     async function gameLoop() {
-      const {id,color} = await myUserPromise;
-      console.log("0___")
-      console.log(id)
+      const { id, color } = await myUserPromise;
+      console.log("0___");
+      console.log(id);
       setInterval(() => {
         if (!id) return;
         socket.emit("movement", { id, movement });
       }, 1000 / 60);
     }
-    gameLoop();
-  }, [isNicknameConfirmed]);
 
+    gameLoop();
+  }, [typeEvent]);
+
+  const handleConfirm = (nickname) => {
+    console.log("ваш никчемный ник: " + nickname);
+    setPlayerNickname(nickname);
+  };
+  const handleButtonClick = (id) => {
+    console.log(`Кнопка с id ${id} кликнута `);
+    setTypeEvent(id);
+  };
   return (
     <div>
-      <Header
-        onNicknameConfirm={handleNicknameConfirm}
-        onNicknameChange={(newNickname) => setPlayerNickname(newNickname)}
-      />
+      {!typeEvent && (
+        <>
+          {!playerNickname && <MainEntrance onConfirm={handleConfirm} />}
+          {playerNickname && <MainMenu onButtonClick={handleButtonClick} />}
+        </>
+      )}
     </div>
   );
 }
