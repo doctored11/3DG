@@ -115,6 +115,7 @@ export class Board {
     // console.log(arr);
     // нагруженно но пока так
     const currentFigures = [...this.getFigures()];
+    // console.log(currentFigures)
 
     if (arr.length < 1) return;
 

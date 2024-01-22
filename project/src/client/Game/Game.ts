@@ -29,6 +29,8 @@ export class Game {
   private playerCamera!: THREE.PerspectiveCamera;
   private board!: Board;
 
+  public player: { x: number; y: number; color: string };
+
   private activeChessFigure: ChessPiece | null = null;
   // private activeCell: Cell | null = null;
 
@@ -40,12 +42,13 @@ export class Game {
     this.setupEventHandlers();
     this.raycaster = new THREE.Raycaster();
 
+    this.player = { x: 0, y: 0, color: "pink" };
+
     window.addEventListener("click", (event) => this.onClick(event));
   }
 
   private setupEventHandlers() {
-    this.socket.emit("new player");
-    this.startPlayerGame();
+    
 
     const chessArr = this.board.getChessToSend();
     console.log(chessArr);
@@ -86,58 +89,26 @@ export class Game {
 
     const boardCells = this.board.getCells();
 
-    // this.figures=boardCells
 
-    this.playerCamera.position.z = 10;
+
+    this.playerCamera.position.add(
+      new THREE.Vector3(37, 25, 30)
+    );
+    this.playerCamera.lookAt((new THREE.Vector3(37, 30, 5)));
+    this.playerCamera.setFocalLength(5);
+
   }
-  private async startPlayerGame() {
-    const myUs = this.listen("generate");
-    const { id, color } = await myUs;
-    this.clientId = id;
-  }
-
-  private createCube(x: number, y: number, color: string): THREE.Object3D {
-    const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const cubeMaterial = new THREE.MeshBasicMaterial({ color: color });
-
-    const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    cube.position.set(x, y, 3);
-
-    const wireframeGeometry = new THREE.WireframeGeometry(cubeGeometry);
-    const wireframeMaterial = new THREE.LineBasicMaterial({
-      color: 0x000000,
-      linewidth: 2,
-    });
-    const wireframe = new THREE.Line(wireframeGeometry, wireframeMaterial);
-    cube.add(wireframe);
-
-    return cube;
-  }
+ 
 
   private render() {
+    console.log("render ",!this.renderer || !this.gameZone)
     if (!this.renderer || !this.gameZone) return;
-    this.socket.on("state", (players: Record<string, ClientPlayer>) => {
-      // console.log(" update:", players); //вывод игроков получаемых с сервера с их позицией
-      this.scene.clear();
-      this.board.render();
-
-      // console.log(boardCells[0][1]);
-      //перемещение игрока(причем максималььно затратное) убрать
-      for (const id in players) {
-        const player = players[id];
-        //этот ад временный - обязательно будет убрано (тест)
-        const cube = this.createCube(player.x, player.y, player.color);
-        if (this.clientId == player.id) {
-          this.playerCamera.position.set(player.x - 1, player.y - 10, 15);
-          this.playerCamera.lookAt(new THREE.Vector3(player.x, player.y, 0));
-        }
-        this.scene.add(cube);
-      }
-
-      this.renderer.render(this.scene, this.playerCamera);
-    });
+ 
+    this.scene.clear();
+   
     this.socket.on("board update", (data: ChessData[]) => {
-      // console.log("обновление доски");
+      console.log("обновление доски");
+      this.scene.clear();
       // console.log(data)
       this.board.restoreFigures(data);
       this.board.render();
