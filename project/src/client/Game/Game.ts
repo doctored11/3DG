@@ -236,7 +236,7 @@ export class Game {
       fetch("/get-board")
       .then((response) => response.json())
       .then((data) => {
-        console.log("обновление доски ", data.chessArr);
+        // console.log("обновление доски ", data.chessArr);
         this.board.restoreFigures(data.chessArr);
         this.render()
       });
