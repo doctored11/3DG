@@ -5,6 +5,7 @@ import { ChessPiece } from "./ChessPiece";
 
 export class PawnFigure extends ChessPiece {
   protected type: string = "pawn";
+  private startLineModule: number = 2;
 
   constructor(
     scene: THREE.Scene,
@@ -12,14 +13,29 @@ export class PawnFigure extends ChessPiece {
     board: Board,
     cell: Cell,
     color: number,
+    teamId: 0 | 1,
     id?: number | null
   ) {
-    super(scene, camera, board, cell, color, id || null);
-   
+    super(scene, camera, board, cell, color, id || null, teamId);
+
     this.cell = cell;
+    const [x, y] = cell.getIndex();
+    const cellsArr = this.board.getCells();
+    if (
+      (teamId && y != this.startLineModule) ||
+      (!teamId && y != cellsArr[0].length - this.startLineModule)
+    ) {
+      this.cell =
+        cellsArr[x][
+          teamId
+            ? this.startLineModule
+            : cellsArr[0].length - this.startLineModule
+        ];
+    }
+
     this.scene = scene;
 
-    this.mesh = this.createMesh(this.color, 1);
+    this.mesh = this.createMesh('PawnFigure', 1,1);
 
     this.draw();
   }
@@ -30,42 +46,73 @@ export class PawnFigure extends ChessPiece {
     this.scene.add(this.mesh);
   }
 
-  public canMove(): Cell[] {
+  private canMove(): Cell[] {
     const cellArr = this.board.getCells();
-    const [ indexX, indexY ]= this.cell.getIndex();
-    if (indexY == 1){
-        return [cellArr[indexX][indexY + 1], cellArr[indexX][indexY + 2]];
+    const [indexX, indexY] = this.cell.getIndex();
+    const possibleMoves: Cell[] = [];
+
+    const allfigures = this.board.getFigures();
+
+    const forwardCell = cellArr[indexX][indexY + 1];
+    const isOccupied = allfigures.some(
+      //если есть идеи - лучше реализовать иначе
+      (chess) => chess.getCell() == forwardCell
+    );
+
+    if (forwardCell && !isOccupied) {
+      possibleMoves.push(forwardCell);
+
+      const startLine = this.getTeamId()
+        ? this.startLineModule
+        : cellArr[0].length - this.startLineModule;
+
+      if (indexY == startLine) {
+        const secondForwardCell = cellArr[indexX][indexY + 2];
+        const isSecondOccupied = allfigures.some(
+          (chess) => chess.getCell() == secondForwardCell
+        );
+
+        if (secondForwardCell && !isSecondOccupied) {
+          possibleMoves.push(secondForwardCell);
+        }
+      }
     }
-    return [cellArr[indexX][indexY+1]] 
-    
+
+    return possibleMoves;
   }
-  public canAttack(): Cell[]{
+
+  private canAttack(): Cell[] {
     const cellArr = this.board.getCells();
-    const [ indexX, indexY ]= this.cell.getIndex();
-    let canAttackCells: Cell[] = []; 
+    const [indexX, indexY] = this.cell.getIndex();
+    let canAttackCells: Cell[] = [];
 
     const attackMoves = [
-        { deltaX: -1, deltaY: 1 }, 
-        { deltaX: 1, deltaY: 1 }, 
-      ];
-    
-    for (const move of attackMoves){
-        const newIndexX = indexX + move.deltaX;
-        const newIndexY = indexY + move.deltaY;
+      { deltaX: -1, deltaY: 1 },
+      { deltaX: 1, deltaY: 1 },
+    ];
 
-        if (
-            newIndexX >= 0 &&
-            newIndexX < cellArr.length &&
-            newIndexY >= 0 &&
-            newIndexY < cellArr[0].length
-        ) {
-            const targetCell = cellArr[newIndexX][newIndexY];
+    for (const move of attackMoves) {
+      const newIndexX = indexX + move.deltaX;
+      const newIndexY = indexY + move.deltaY;
 
+      if (
+        newIndexX >= 0 &&
+        newIndexX < cellArr.length &&
+        newIndexY >= 0 &&
+        newIndexY < cellArr[0].length
+      ) {
+        const targetCell = cellArr[newIndexX][newIndexY];
 
-            canAttackCells.push(targetCell);
-        }
+        canAttackCells.push(targetCell);
+      }
     }
 
-    return canAttackCells; 
+    return canAttackCells;
+  }
+
+  public getFigureAction(): Cell[][]{
+    const canMoveArr = this.canMove()
+    const canAttackArr = this.canAttack()
+    return [canMoveArr,canAttackArr]
   }
 }

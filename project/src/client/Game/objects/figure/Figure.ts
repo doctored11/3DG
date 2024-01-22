@@ -10,7 +10,7 @@ export class Figure {
 
   constructor(scene: THREE.Scene, camera: THREE.Camera, color: number, id?:number|null) {
     // this.mesh = new THREE.Mesh();
-    this.mesh = this.createMesh(1,1);
+    this.mesh = this.createMesh('PawnFigure',1,1);
     this.camera = camera;
 
     this.scene = scene;
@@ -21,8 +21,9 @@ export class Figure {
     // window.addEventListener("click", (event) => this.onClick(event));
   }
 
-  protected createMesh(color : number,size : number): THREE.Mesh {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
+  protected createMesh(type : string,size : number,color : number): THREE.Mesh {
+
+    const geometry = new THREE.BoxGeometry(1,1,1);
     const material = new THREE.MeshBasicMaterial({ color: this.color });
     return new THREE.Mesh(geometry, material);
   }

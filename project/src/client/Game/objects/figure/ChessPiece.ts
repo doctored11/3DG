@@ -10,6 +10,7 @@ export class ChessPiece extends Figure {
   protected board: Board;
   protected id: number;
   protected type: string = "chess";
+  protected teamId:0|1;
 
   constructor(
     scene: THREE.Scene,
@@ -17,21 +18,29 @@ export class ChessPiece extends Figure {
     board: Board,
     cell: Cell,
     color: number,
-    id: number | null
+    id: number | null,
+    teamId: 0 | 1
   ) {
     super(scene, camera, color);
     this.cell = cell;
-    this.mesh = this.createMesh(1, 1);
+    this.mesh = this.createMesh("PawnFigure", 1,1);
     this.board = board;
     this.id = id || Math.round(Math.random() * 8000) + 1;
     this.draw();
+    this.teamId = teamId || 0;
     this.mesh.addEventListener("click", this.onClick.bind(this));
   }
-  protected createMesh(color: number, size: number): THREE.Mesh {
-    const geometry = new THREE.BoxGeometry(size, size, size);
-    const material = new THREE.MeshBasicMaterial({
-      color: this.color,
-    });
+  protected createMesh(type : string, size: number,color : number): THREE.Mesh {
+    const figureTypes : any = {
+      "BishopFigure" : new THREE.SphereGeometry(size), 
+      "QueenFigure" : new THREE.SphereGeometry(size*1.5),
+      "PawnFigure" : new THREE.BoxGeometry(size, size, size),
+      "KnightFigure" : new THREE.BoxGeometry(size,size*1.5,size),
+      "KingFigure" : new THREE.BoxGeometry(size,size*2,size),
+      "RootFigure" : new THREE.BoxGeometry(size*1.5,size*1.5,size*1.5)
+    }
+    const geometry = figureTypes[type];
+    const material = new THREE.MeshBasicMaterial({ color: this.color });
     return new THREE.Mesh(geometry, material);
   }
   public draw() {
@@ -49,6 +58,9 @@ export class ChessPiece extends Figure {
   public getType(): string {
     return this.type;
   }
+  public getTeamId():0|1{
+    return this.teamId;
+  }
 
   remove() {
     this.scene.remove(this.mesh);
@@ -63,9 +75,7 @@ export class ChessPiece extends Figure {
     console.log("________]");
     const allCheses = this.board.getFigures();
 
-    console.log(this.canMove());
-    const targetCells: Cell[] = this.canMove();
-    const canAttackCells: Cell[] = this.canAttack();
+    const [targetCells,canAttackCells] = this.getFigureAction();
 
     const occupiedCells: Cell[] = [];
     const arrayOfActions: { cell: Cell; action: "move" | "attack" }[] = [];
@@ -90,12 +100,10 @@ export class ChessPiece extends Figure {
     //TODO
     return arrayOfActions;
   }
-  public canMove(): Cell[] {
-    console.log(this, "CanMove родителя")
-    return this.board.getCells()[0];
-  }
 
-  public canAttack(): Cell[]{
-    return this.board.getCells()[0];
+  public getFigureAction(): Cell[][]{
+    const canMoveCells = this.board.getCells()[0]
+    const canAttackCells = this.board.getCells()[0]
+    return [canMoveCells,canAttackCells]
   }
 }
