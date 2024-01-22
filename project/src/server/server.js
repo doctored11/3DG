@@ -18,9 +18,10 @@ const PORT = process.env.PORT || 3000;
 
 
 
-let board = new Board();
+const boards = new Map;
+
 const server = http.createServer();
-const connector = new Connector(app, board, server);
+const connector = new Connector(app, boards, server);
 connector.start();
 
 
@@ -32,20 +33,6 @@ function generateRandomColor() { //временно или вынести в у�
 }
 
 
-
-
-app.post('/update-board', (req, res) => {
-  const chessArr = req.body;
-
-  console.log("получили доску с клиента");
-  console.log(chessArr);
-
-
-  board.figureArrUpdate(chessArr);
-
-  // ответ вернем"
-  res.status(200).send("Board updated successfully");
-});
 
 
 

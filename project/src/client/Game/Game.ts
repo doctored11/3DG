@@ -29,6 +29,8 @@ export class Game {
   private playerCamera!: THREE.PerspectiveCamera;
   private board!: Board;
 
+  private boardId: number | null = null;
+
   public player: { x: number; y: number; color: string };
 
   private activeChessFigure: ChessPiece | null = null;
@@ -54,15 +56,16 @@ export class Game {
 
     // this.socket.emit("board update", chessArr);
 
-    fetch("/game-start", {
+    fetch("/create-board", {
       method: "POST",
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Новая игра начата, данные доски получены", data);
-        this.board.restoreFigures(data);
-        this.board.render();
-        this.renderer.render(this.scene, this.playerCamera);
+        console.log("Новая игра начата, id доски получены", data.boardId);
+        this.boardId = data.boardId;
+        // this.board.restoreFigures(data);
+        // this.board.render();
+        // this.renderer.render(this.scene, this.playerCamera);
       });
 
     this.render();
@@ -219,7 +222,7 @@ export class Game {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ chessArr }),
+      body: JSON.stringify({ boardId: this.boardId, chessArr }), 
     })
 
     this.render()
@@ -233,14 +236,14 @@ export class Game {
 
   private getLoop(): void {
     setInterval(() => {
-      fetch("/get-board")
+      fetch(`/get-board/${this.boardId}`)
       .then((response) => response.json())
       .then((data) => {
-        // console.log("обновление доски ", data.chessArr);
-        this.board.restoreFigures(data.chessArr);
+        console.log("обновление доски ", data);
+        this.board.restoreFigures(data);
         this.render()
       });
-    }, 1000 / 10);
+    }, 1000 / 5);
   }
 
   cellColorOf() {

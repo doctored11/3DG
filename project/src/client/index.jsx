@@ -25,15 +25,7 @@ function App() {
     handleNicknameConfirm();
 
     const game = new Game( "game1", gameZone); //ключ по которому читает сервер(как бы ключ игры потом наверное)
-    game.onBoardUpdate((chessArr) => {
-      // fetch('/update-board', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(chessArr),
-      // });
-    });
+    
   }, [typeEvent]);
 
   const handleConfirm = (nickname) => {
