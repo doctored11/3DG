@@ -7,7 +7,7 @@ import "./main.css";
 import { MainEntrance } from "./MainEntrance/MainEntrance.tsx";
 import { MainMenu } from "./MainMenu/MainMenu.tsx";
 
-const socket = io();
+// const socket = io();
 
 const gameZone = document.getElementById("game-zone");
 
@@ -24,8 +24,16 @@ function App() {
     if (typeEvent != "create") return; //потом поменять логику
     handleNicknameConfirm();
 
-    const game = new Game(socket, "game1", gameZone); //ключ по которому читает сервер(как бы ключ игры потом наверное)
-   
+    const game = new Game( "game1", gameZone); //ключ по которому читает сервер(как бы ключ игры потом наверное)
+    game.onBoardUpdate((chessArr) => {
+      // fetch('/update-board', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(chessArr),
+      // });
+    });
   }, [typeEvent]);
 
   const handleConfirm = (nickname) => {
@@ -49,4 +57,6 @@ function App() {
 }
 window.addEventListener("load", () => {
   ReactDom.hydrate(<App />, document.getElementById("react_root"));
+
+  
 });

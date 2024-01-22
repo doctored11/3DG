@@ -18,7 +18,7 @@ interface ClientPlayer {
 }
 
 export class Game {
-  private socket: any;
+  // private socket: any;
   private key: string;
   private gameZone: HTMLDivElement;
   private scene: THREE.Scene = new THREE.Scene();
@@ -32,10 +32,9 @@ export class Game {
   public player: { x: number; y: number; color: string };
 
   private activeChessFigure: ChessPiece | null = null;
-  // private activeCell: Cell | null = null;
 
-  constructor(socket: any, key: string, gameZone: HTMLDivElement) {
-    this.socket = socket;
+  constructor(key: string, gameZone: HTMLDivElement) {
+    // this.socket = socket;
     this.key = key;
     this.gameZone = gameZone;
     this.initThree();
@@ -48,22 +47,28 @@ export class Game {
   }
 
   private setupEventHandlers() {
-    
-
     const chessArr = this.board.getChessToSend();
+    console.log("ВХОД");
     console.log(chessArr);
-    this.socket.emit("board update", chessArr);
+    //тут надо отправлять доску на сервер
+
+    // this.socket.emit("board update", chessArr);
+
+    fetch("/game-start", {
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Новая игра начата, данные доски получены", data);
+        this.board.restoreFigures(data);
+        this.board.render();
+        this.renderer.render(this.scene, this.playerCamera);
+      });
 
     this.render();
+    this.getLoop()
   }
-  private listen(key: string): Promise<any> {
-    return new Promise((resolve) => {
-      this.socket.on(key, function (data: any) {
-        console.log(`получено по ключу ${key}:` + data);
-        resolve(data);
-      });
-    });
-  }
+  
 
   private onNewEvent(result: string, eventKey?: any) {
     console.log(`событие на ${eventKey || "?"} :`, result);
@@ -89,31 +94,20 @@ export class Game {
 
     const boardCells = this.board.getCells();
 
-
-
-    this.playerCamera.position.add(
-      new THREE.Vector3(37, 25, 30)
-    );
-    this.playerCamera.lookAt((new THREE.Vector3(37, 30, 5)));
+    this.playerCamera.position.add(new THREE.Vector3(37, 25, 30));
+    this.playerCamera.lookAt(new THREE.Vector3(37, 30, 5));
     this.playerCamera.setFocalLength(5);
-
   }
- 
 
   private render() {
-    console.log("render ",!this.renderer || !this.gameZone)
+    console.log("render ", !this.renderer || !this.gameZone);
     if (!this.renderer || !this.gameZone) return;
- 
+
     this.scene.clear();
+    this.board.render()
+    //  тут был слушатель
    
-    this.socket.on("board update", (data: ChessData[]) => {
-      console.log("обновление доски");
-      this.scene.clear();
-      // console.log(data)
-      this.board.restoreFigures(data);
-      this.board.render();
-      this.renderer.render(this.scene, this.playerCamera);
-    });
+    this.renderer.render(this.scene, this.playerCamera);
   }
 
   protected onClick(event: MouseEvent) {
@@ -212,10 +206,41 @@ export class Game {
     console.log("ТУТ ПОПЫКТКА ОТПРАВИТЬ");
     const chessArr = this.board.getChessToSend();
     console.log(chessArr);
-    this.socket.emit("board update", chessArr);
+    //тут надо отправлять доску на сервер
+    // this.socket.emit("board update", chessArr);
+    this.onBoardUpdateCallback(chessArr);
+
     cellsToSHighlight?.forEach((el) => {
       el.cell.setHighlight(true, el.action == "move" ? 0x0066bb : 0xaa1177);
     });
+
+    fetch("/update-board", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ chessArr }),
+    })
+
+    this.render()
+  }
+
+  private onBoardUpdateCallback: (chessArr: ChessData[]) => void = () => {};
+
+  public onBoardUpdate(callback: (chessArr: ChessData[]) => void) {
+    this.onBoardUpdateCallback = callback;
+  }
+
+  private getLoop(): void {
+    setInterval(() => {
+      fetch("/get-board")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("обновление доски ", data.chessArr);
+        this.board.restoreFigures(data.chessArr);
+        this.render()
+      });
+    }, 1000 / 10);
   }
 
   cellColorOf() {

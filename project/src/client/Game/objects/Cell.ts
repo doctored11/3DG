@@ -44,6 +44,7 @@ export class Cell extends Figure {
     this.isHighlight = false;
   }
   changeMesh(color?: number) {
+    console.log("меняем материал", color, this)
     const geometry = new THREE.BoxGeometry(CELL_SIZE, CELL_SIZE, CELL_HEIGHT);
     let material = new THREE.MeshBasicMaterial({ color: this.basicColor });
     if (this.isHighlight) {
