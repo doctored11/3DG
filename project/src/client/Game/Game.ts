@@ -29,7 +29,7 @@ export class Game {
   private playerCamera!: THREE.PerspectiveCamera;
   private board!: Board;
 
-  private boardId: number | null = null;
+  private boardId: number | null = -1;
 
   public player: { x: number; y: number; color: string };
 
@@ -58,14 +58,15 @@ export class Game {
 
     fetch("/create-board", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ boardId: -1 }), // Здесь передается -1 как значение id (вы можете изменить это на нужное вам значение)
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Новая игра начата, id доски получены", data.boardId);
-        this.boardId = data.boardId;
-        // this.board.restoreFigures(data);
-        // this.board.render();
-        // this.renderer.render(this.scene, this.playerCamera);
+        const newBoardId = data.boardId;
+        // Используйте newBoardId по своему усмотрению
       });
 
     this.render();
@@ -217,12 +218,12 @@ export class Game {
       el.cell.setHighlight(true, el.action == "move" ? 0x0066bb : 0xaa1177);
     });
 
-    fetch("/update-board", {
+    fetch(`/update-board/${this.boardId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ boardId: this.boardId, chessArr }), 
+      body: JSON.stringify({ chessArr }), 
     })
 
     this.render()

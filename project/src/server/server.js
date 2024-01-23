@@ -13,15 +13,13 @@ const app = express();
 // const server = http.createServer(app);
 // const io = socketIO(server);
 
-const PORT = process.env.PORT || 3000;
-// 
 
 
 
-const boards = new Map;
+
 
 const server = http.createServer();
-const connector = new Connector(app, boards, server);
+const connector = new Connector(app,  server);
 connector.start();
 
 
