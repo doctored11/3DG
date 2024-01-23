@@ -32,16 +32,25 @@ function App() {
     console.log("ваш никчемный ник: " + nickname);
     setPlayerNickname(nickname);
   };
+
+
+
   const handleButtonClick = (id) => {
     console.log(`Кнопка с id ${id} кликнута `);
     setTypeEvent(id);
+  };
+  const handleLobbyItemClick = (id) => {
+    console.log(`Клик по лобби в App с id ${id}`);
+    handleButtonClick(id)
+
   };
   return (
     <div>
       {!typeEvent && (
         <>
-          {!playerNickname && <MainEntrance onConfirm={handleConfirm} />}
-          {playerNickname && <MainMenu onButtonClick={handleButtonClick} />}
+          {!playerNickname && <MainEntrance onConfirm={handleConfirm} />} 
+        {playerNickname && <MainMenu onButtonClick={handleButtonClick} onLobbyItemClick={handleLobbyItemClick} />}
+  
         </>
       )}
       

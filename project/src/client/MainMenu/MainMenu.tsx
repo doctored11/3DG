@@ -3,9 +3,10 @@ import LobbiesList from "./LobbiesList/LobbiesList";
 
 interface MainMenuProps {
   onButtonClick: (id: string) => void;
+  onLobbyItemClick: (id: string) => void;
 }
 
-export const MainMenu: React.FC<MainMenuProps> = ({ onButtonClick }) => {
+export const MainMenu: React.FC<MainMenuProps> = ({ onButtonClick,onLobbyItemClick }) => {
   const [name, setName] = useState("");
   const [boardKeys, setBoardKeys] = useState<string[]>([]);
 
@@ -18,10 +19,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onButtonClick }) => {
       const data: [] = await response.json();
       console.log("Data с сервера:", data);
 
-      if (data  && data.length > 0) {
+      if (data && data.length > 0) {
         setBoardKeys(data);
       }
-      
     } catch (error: any) {
       console.error("Ошибка при получении списка ID досок:", error.message);
     }
@@ -41,6 +41,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onButtonClick }) => {
   };
   const handleLobbyItemClick = (id: string) => {
     console.log(`Подключение к лобби из MainMenu с id ${id}`);
+    onLobbyItemClick(id);
   };
 
   return (
@@ -64,7 +65,10 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onButtonClick }) => {
           </button>
 
           {boardKeys && boardKeys.length > 0 && (
-            <LobbiesList lobbyIds={boardKeys} onLobbyItemClick={handleLobbyItemClick} />
+            <LobbiesList
+              lobbyIds={boardKeys}
+              onLobbyItemClick={handleLobbyItemClick}
+            />
           )}
         </div>
       </div>
