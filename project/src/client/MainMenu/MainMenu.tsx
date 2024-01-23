@@ -1,14 +1,26 @@
 import React, { useState, useEffect } from "react";
 import LobbiesList from "./LobbiesList/LobbiesList";
+import Player from "../Player/Player";
 
 interface MainMenuProps {
   onButtonClick: (id: string) => void;
-  onLobbyItemClick: (id: string) => void;
+  onLobbyItemClick: (data: { id: string; status: string }) => void;
+  clientPlayer: Player; //-_-
+}
+interface LobbyItemClickData {
+  id: string;
+  status: string;
 }
 
-export const MainMenu: React.FC<MainMenuProps> = ({ onButtonClick,onLobbyItemClick }) => {
+export const MainMenu: React.FC<MainMenuProps> = ({
+  onButtonClick,
+  onLobbyItemClick,
+  clientPlayer,
+}) => {
   const [name, setName] = useState("");
   const [boardKeys, setBoardKeys] = useState<string[]>([]);
+  const player = clientPlayer;
+  console.log(player, "MM")
 
   useEffect(() => {
     fetchBoardKeys();
@@ -33,15 +45,17 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onButtonClick,onLobbyItemCli
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ boardId: gameId }),
+      body: JSON.stringify({ boardId: gameId, playersId: [player.getId()] }),
     }).then((response) => {
       response.json();
       onButtonClick(gameId);
     });
   };
-  const handleLobbyItemClick = (id: string) => {
-    console.log(`Подключение к лобби из MainMenu с id ${id}`);
-    onLobbyItemClick(id);
+  const handleLobbyItemClick = ({ id, status }: LobbyItemClickData) => {
+    console.log(
+      `Подключение к лобби из MainMenu с id ${id} и статусом ${status}`
+    );
+    onLobbyItemClick({ id, status });
   };
 
   return (

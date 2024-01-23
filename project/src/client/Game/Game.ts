@@ -6,6 +6,7 @@ import { ChessPiece } from "./objects/figure/ChessPiece";
 import { Figure } from "./objects/figure/Figure";
 import { Cell } from "./objects/Cell";
 import { ChessData } from "./objects/Board";
+import Player from "../Player/Player";
 
 interface ClientPlayer {
   x: number;
@@ -28,22 +29,21 @@ export class Game {
   private renderer!: THREE.WebGLRenderer;
   private playerCamera!: THREE.PerspectiveCamera;
   private board!: Board;
+  private player: Player;
+  private gamersId: string[] = [];
 
   private boardId: string | null = "-1";
 
-  public player: { x: number; y: number; color: string };
-
   private activeChessFigure: ChessPiece | null = null;
 
-  constructor(key: string, gameZone: HTMLDivElement) {
+  constructor(player: Player, gameId: string, gameZone: HTMLDivElement) {
     // this.socket = socket;
-    this.boardId = key;
+    this.boardId = gameId;
     this.gameZone = gameZone;
+    this.player = player;
     this.initThree();
     this.setupEventHandlers();
     this.raycaster = new THREE.Raycaster();
-
-    this.player = { x: 0, y: 0, color: "pink" };
 
     window.addEventListener("click", (event) => this.onClick(event));
   }
@@ -52,6 +52,8 @@ export class Game {
     const chessArr = this.board.getChessToSend();
     console.log("ВХОД");
     console.log(chessArr);
+    const plId = this.player.getId();
+    console.log(plId);
     //тут надо отправлять доску на сервер
 
     // this.socket.emit("board update", chessArr);
@@ -68,11 +70,31 @@ export class Game {
     //     const newBoardId = data.boardId;
     //     // Используйте newBoardId по своему усмотрению
     //   });
+    console.log({ chessArr: chessArr, playerId: plId });
+    if (this.player.getCurrentGameId() == this.boardId) {
+      console.log("ИГРОК УЧАСТНИК!");
+      fetch(`/update-board/${this.boardId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ chessArr: chessArr, playerId: plId }),
+      });
+    }
+
+    fetch(`/get-board/${this.boardId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("обновление доски ", data);
+
+        this.board.restoreFigures(data.chessArr);
+        this.gamersId.push(data.players);
+        this.render();
+      });
 
     this.render();
-    this.getLoop()
+    this.getLoop();
   }
-  
 
   private onNewEvent(result: string, eventKey?: any) {
     console.log(`событие на ${eventKey || "?"} :`, result);
@@ -108,13 +130,15 @@ export class Game {
     if (!this.renderer || !this.gameZone) return;
 
     this.scene.clear();
-    this.board.render()
+    this.board.render();
     //  тут был слушатель
-   
+
     this.renderer.render(this.scene, this.playerCamera);
   }
 
   protected onClick(event: MouseEvent) {
+    if (!this.isPlayer()) return;
+
     const pointer = new THREE.Vector2();
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = (-event.clientY / window.innerHeight) * 2 + 1;
@@ -223,10 +247,10 @@ export class Game {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ chessArr }), 
-    })
+      body: JSON.stringify({ chessArr }),
+    });
 
-    this.render()
+    this.render();
   }
 
   private onBoardUpdateCallback: (chessArr: ChessData[]) => void = () => {};
@@ -238,13 +262,14 @@ export class Game {
   private getLoop(): void {
     setInterval(() => {
       fetch(`/get-board/${this.boardId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("обновление доски ", data);
-        this.board.restoreFigures(data);
-        this.render()
-      });
-    }, 1000 / 5);
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("обновление доски ", data);
+
+          this.board.restoreFigures(data.chessArr);
+          this.render();
+        });
+    }, 1000 / 2);
   }
 
   cellColorOf() {
@@ -255,5 +280,15 @@ export class Game {
         figure.setHighlight(false);
       }
     }
+  }
+  isPlayer(): boolean {
+    if (
+      !this.gamersId.some(
+        (gamer) => Object.keys(gamer)[0] == this.player.getId()
+      )
+    ) {
+      return false;
+    }
+    return true;
   }
 }

@@ -3,7 +3,7 @@ import LobbieItem from './LobbieItem/LobbieItem';
 
 interface LobbiesListProps {
   lobbyIds: string[];
-  onLobbyItemClick: (id: string) => void;
+  onLobbyItemClick: (data: { id: string, status: string }) => void;
 }
 
 const LobbiesList: React.FC<LobbiesListProps> = ({ lobbyIds, onLobbyItemClick }) => {
