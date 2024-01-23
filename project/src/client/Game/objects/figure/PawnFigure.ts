@@ -4,7 +4,7 @@ import { Cell } from "../Cell";
 import { ChessPiece } from "./ChessPiece";
 
 export class PawnFigure extends ChessPiece {
-  private startLineModule: number = 2;
+  private startLineModule: number = 1;
 
   constructor(
     scene: THREE.Scene,
@@ -22,13 +22,13 @@ export class PawnFigure extends ChessPiece {
     const cellsArr = this.board.getCells();
     if (
       (teamId && y != this.startLineModule) ||
-      (!teamId && y != cellsArr[0].length - this.startLineModule)
+      (!teamId && y != cellsArr[0].length-1 - this.startLineModule)
     ) {
       this.cell =
         cellsArr[x][
           teamId
             ? this.startLineModule
-            : cellsArr[0].length - this.startLineModule
+            : cellsArr[0].length-1 - this.startLineModule
         ];
     }
 
@@ -58,7 +58,7 @@ export class PawnFigure extends ChessPiece {
 
       const startLine = this.getTeamId()
         ? this.startLineModule
-        : cellArr[0].length - this.startLineModule;
+        : cellArr[0].length-1 - this.startLineModule;
 
       if (indexY == startLine) {
         const secondForwardCell =

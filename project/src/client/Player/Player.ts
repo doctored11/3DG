@@ -1,13 +1,13 @@
 export default class Player {
   private id: string;
   private isPlaying: boolean;
-  private playingSide: string;
-  private currentGameId: string | null;
+  private playingSide: number;
+  private currentGameId: 0 | 1 | null;
 
   constructor(id: string) {
     this.id = id;
     this.isPlaying = false;
-    this.playingSide = "";
+    this.playingSide = -1;
     this.currentGameId = null;
   }
 
@@ -22,19 +22,19 @@ export default class Player {
     this.isPlaying = value;
   }
 
-  getPlayingSide(): string {
+  getPlayingSide(): number {
     return this.playingSide;
   }
 
-  setPlayingSide(value: string): void {
+  setPlayingSide(value: number): void {
     this.playingSide = value;
   }
 
-  getCurrentGameId(): string | null {
+  getCurrentGameId(): 0 | 1 | null {
     return this.currentGameId;
   }
 
-  setCurrentGameId(value: string | null): void {
+  setCurrentGameId(value: 0 | 1 | null): void {
     this.currentGameId = value;
   }
 }

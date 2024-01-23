@@ -15,6 +15,7 @@ export class Board {
   protected scene: THREE.Scene;
   protected camera: THREE.Camera;
   protected chesses: ChessPiece[] = [];
+  private step: number = 1;
 
   constructor(
     scene: THREE.Scene,
@@ -213,80 +214,7 @@ export class Board {
         const type = el.type;
         let newChess: ChessPiece | null = null;
         console.log("типок: ", type);
-        // switch (type) {
-        //   case "PawnFigure":
-        //     newChess = new PawnFigure(
-        //       this.scene,
-        //       this.camera,
-        //       this,
-        //       cell,
-        //       el.color,
-        //       el.teamId,
-        //       el.id
-        //     );
-        //     console.log(newChess);
-        //     break;
-        //   case "BishopFigure":
-        //     newChess = new BishopFigure(
-        //       this.scene,
-        //       this.camera,
-        //       this,
-        //       cell,
-        //       el.color,
-        //       el.teamId,
-        //       el.id
-        //     );
-        //     console.log(newChess);
-        //     break;
-        //   case "KnightFigure":
-        //     newChess = new KnightFigure(
-        //       this.scene,
-        //       this.camera,
-        //       this,
-        //       cell,
-        //       el.color,
-        //       el.teamId,
-        //       el.id
-        //     );
-        //     console.log(newChess);
-        //     break;
-        //   case "KingFigure":
-        //     newChess = new KingFigure(
-        //       this.scene,
-        //       this.camera,
-        //       this,
-        //       cell,
-        //       el.color,
-        //       el.teamId,
-        //       el.id
-        //     );
-        //     console.log(newChess);
-        //     break;
-        //   case "QueenFigure":
-        //     newChess = new QueenFigure(
-        //       this.scene,
-        //       this.camera,
-        //       this,
-        //       cell,
-        //       el.color,
-        //       el.teamId,
-        //       el.id
-        //     );
-        //     console.log(newChess);
-        //     break;
-        //   case "RootFigure":
-        //     newChess = new RootFigure(
-        //       this.scene,
-        //       this.camera,
-        //       this,
-        //       cell,
-        //       el.color,
-        //       el.teamId,
-        //       el.id
-        //     );
-        //     console.log(newChess);
-        //     break;
-        // }
+
         const chessFigureFactory = new ChessFigureFactory(
           this.scene,
           this.camera,
@@ -326,6 +254,13 @@ export class Board {
       };
     });
     return figuresData;
+  }
+  public nextStep(): void {
+    console.log("++++ХОДД :", this.step + 1);
+    this.step++;
+  }
+  public getStep(): number {
+    return this.step;
   }
   public getCellById(id: number): Cell | undefined {
     for (const row of this.cells) {

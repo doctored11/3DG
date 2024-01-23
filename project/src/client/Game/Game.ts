@@ -8,16 +8,6 @@ import { Cell } from "./objects/Cell";
 import { ChessData } from "./objects/Board";
 import Player from "../Player/Player";
 
-interface ClientPlayer {
-  x: number;
-  y: number;
-  name: string;
-  color: string;
-  id: string;
-  // Добавляем сигнатуру индекса
-  [key: string]: any;
-}
-
 export class Game {
   // private socket: any;
   // private key: string;
@@ -54,22 +44,7 @@ export class Game {
     console.log(chessArr);
     const plId = this.player.getId();
     console.log(plId);
-    //тут надо отправлять доску на сервер
 
-    // this.socket.emit("board update", chessArr);
-
-    // fetch("/create-board", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({ boardId: -1 }), // Здесь передается -1 как значение id (вы можете изменить это на нужное вам значение)
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     const newBoardId = data.boardId;
-    //     // Используйте newBoardId по своему усмотрению
-    //   });
     console.log({ chessArr: chessArr, playerId: plId });
     if (this.player.getCurrentGameId() == this.boardId) {
       console.log("ИГРОК УЧАСТНИК!");
@@ -89,6 +64,22 @@ export class Game {
 
         this.board.restoreFigures(data.chessArr);
         this.gamersId.push(data.players);
+        console.log(data.players);
+        for (const playerId in data.players) {
+          if (data.players.hasOwnProperty(playerId)) {
+            const teamSide = data.players[playerId];
+            console.log(teamSide, "Tside!");
+            console.log(playerId, this.player.getId());
+
+            if (playerId == this.player.getId()) {
+              this.player.setPlayingSide(teamSide);
+              console.log("удачно присваиваем команду на входе ", this.player);
+              break;
+            }
+          }
+        }
+
+        console.log(data.players, "получил ", this.player.getId());
         this.render();
       });
 
@@ -120,9 +111,9 @@ export class Game {
 
     const boardCells = this.board.getCells();
 
-    this.playerCamera.position.add(new THREE.Vector3(37, 25, 30));
-    this.playerCamera.lookAt(new THREE.Vector3(37, 30, 5));
-    this.playerCamera.setFocalLength(5);
+    this.playerCamera.position.add(new THREE.Vector3(37, 38, 25));
+    this.playerCamera.lookAt(new THREE.Vector3(37, 41, 5));
+    this.playerCamera.setFocalLength(3);
   }
 
   private render() {
@@ -137,7 +128,9 @@ export class Game {
   }
 
   protected onClick(event: MouseEvent) {
+    // TODO разбить мутанта этого ()
     if (!this.isPlayer()) return;
+    let canMoveIt = false;
 
     const pointer = new THREE.Vector2();
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -183,12 +176,23 @@ export class Game {
     //Зачаток к логике передвижения
     console.log("Готовность двигаться!");
     console.log(this.activeChessFigure);
+
     // console.log(this.activeCell)
     if (firstIntersection instanceof ChessPiece) {
       this.cellColorOf();
       this.activeChessFigure = firstIntersection;
       console.log("Выбрана основная фигура!");
       console.log(firstIntersection);
+
+      canMoveIt =
+        this.activeChessFigure?.getTeamId() == this.player.getPlayingSide();
+
+      console.log(
+        "могу двигать? :",
+        canMoveIt,
+        this.activeChessFigure?.getTeamId(),
+        this.player.getPlayingSide()
+      );
     } else if (
       firstIntersection instanceof Cell &&
       firstIntersection.getHighlightStatus()
@@ -199,21 +203,38 @@ export class Game {
       let action: string = "move";
       // console.log("___+!");
       // console.log(cellsToSHighlight);
+      canMoveIt =
+        this.activeChessFigure?.getTeamId() == this.player.getPlayingSide();
+
+      //если шаг доски синхронизировать то ок:
+      // canMoveIt =
+      //   canMoveIt &&
+      //   (this.player.getPlayingSide()
+      //     ? this.board.getStep() % 2 != 0
+      //     : this.board.getStep() % 2 == 0);
+      // console.log(
+      //   "Статус хода ",
+      //   canMoveIt,
+      //   this.player.getPlayingSide(),
+      //   this.board.getStep(),
+      //   this.board.getStep() % 2 != 0,
+      //   this.board.getStep() % 2 == 0
+      // );
 
       this.activeChessFigure?.onSelect()?.forEach((el) => {
         console.log(el.cell === firstIntersection);
         if (el.cell === firstIntersection) action = el.action;
       });
-      console.log(action);
+      console.log("ОПределяем характер движения", canMoveIt);
 
-      if (action == "attack") {
+      if (action == "attack" && canMoveIt) {
         this.board.getFigures().forEach((chess) => {
           if (
             chess.getCell() == firstIntersection &&
             chess.getTeamId() != this.activeChessFigure?.getTeamId()
           ) {
             console.log(
-              "ААА он убит! -> " + JSON.stringify(chess.getPosition())
+              "АААA он убит! -> " + JSON.stringify(chess.getPosition())
             );
             //да - как то получилось 2 массива из которых надо удалять ( массив на клики и массив на отрисовку)
             this.board.removeChess(chess);
@@ -221,9 +242,11 @@ export class Game {
           }
         });
       }
-      if (action == "move") {
+
+      if (action == "move" && canMoveIt) {
         this.activeChessFigure?.move(firstIntersection);
       }
+      if (canMoveIt) this.board.nextStep();
 
       this.cellColorOf();
     } else if (firstIntersection instanceof Cell) {
@@ -238,8 +261,18 @@ export class Game {
     // this.socket.emit("board update", chessArr);
     this.onBoardUpdateCallback(chessArr);
 
+    console.log("Перед покраской ", canMoveIt);
     cellsToSHighlight?.forEach((el) => {
-      el.cell.setHighlight(true, el.action == "move" ? 0x0066bb : 0xaa1177);
+      el.cell.setHighlight(
+        true,
+        el.action == "move"
+          ? canMoveIt
+            ? 0x0066bb
+            : 0x117766
+          : canMoveIt
+          ? 0xaa1177
+          : 0x560155
+      );
     });
 
     fetch(`/update-board/${this.boardId}`, {
@@ -264,7 +297,7 @@ export class Game {
       fetch(`/get-board/${this.boardId}`)
         .then((response) => response.json())
         .then((data) => {
-          console.log("обновление доски ", data);
+          // console.log("обновление доски ", data);
 
           this.board.restoreFigures(data.chessArr);
           this.render();
@@ -282,13 +315,13 @@ export class Game {
     }
   }
   isPlayer(): boolean {
-    if (
-      !this.gamersId.some(
-        (gamer) => Object.keys(gamer)[0] == this.player.getId()
-      )
-    ) {
+    const playerId = this.player.getId();
+
+    if (!this.gamersId.some((gamer) => gamer.hasOwnProperty(playerId))) {
+      console.log("Ты не игрок в этой партии!", this.gamersId, playerId);
       return false;
     }
+
     return true;
   }
 }
