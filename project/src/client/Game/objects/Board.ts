@@ -6,6 +6,7 @@ import { RootFigure } from "./figure/RootFigure";
 import { QueenFigure } from "./figure/QueenFigure";
 import { KingFigure } from "./figure/KingFigure";
 import { KnightFigure } from "./figure/KnightFigure";
+import { ChessFigureFactory } from "./figure/FigureFactory";
 
 export class Board {
   private cells: Cell[][] = [];
@@ -53,7 +54,7 @@ export class Board {
         this.camera,
         this,
         this.cells[i][1],
-        Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6, //простите если сломал (но мне нужен цвет на этом этапе)
+        Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
         1
       );
       this.chesses.push(pawn);
@@ -64,7 +65,7 @@ export class Board {
         this.camera,
         this,
         this.cells[j][0],
-        Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+        Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
         1
       );
       this.chesses.push(bishop);
@@ -75,7 +76,7 @@ export class Board {
         this.camera,
         this,
         this.cells[i][this.sizeY - 1],
-        Math.round(Math.random() * 0xFFFFFF/8), //простите если сломал (но мне нужен цвет на этом этапе)
+        Math.round((Math.random() * 0xffffff) / 8), //простите если сломал (но мне нужен цвет на этом этапе)
         0
       );
       this.chesses.push(pawn);
@@ -86,40 +87,40 @@ export class Board {
         this.camera,
         this,
         this.cells[j][this.sizeY - 1],
-        Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+        Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
         0
       );
       this.chesses.push(bishop);
     }
-    for (let z = 0; z < this.sizeX; z += 7){
+    for (let z = 0; z < this.sizeX; z += 7) {
       const root = new RootFigure(
         this.scene,
         this.camera,
         this,
         this.cells[z][0],
-        Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+        Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
         1
       );
       this.chesses.push(root);
     }
-    for (let z = 0; z < this.sizeX; z += 7){
+    for (let z = 0; z < this.sizeX; z += 7) {
       const root = new RootFigure(
         this.scene,
         this.camera,
         this,
         this.cells[z][this.sizeY - 1],
-        Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+        Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
         0
       );
       this.chesses.push(root);
     }
-    for (let v = 1; v < this.sizeX; v += 5){
+    for (let v = 1; v < this.sizeX; v += 5) {
       const knight = new KnightFigure(
         this.scene,
         this.camera,
         this,
         this.cells[v][0],
-        Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+        Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
         1
       );
       this.chesses.push(knight);
@@ -129,7 +130,7 @@ export class Board {
       this.camera,
       this,
       this.cells[3][0],
-      Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+      Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
       1
     );
     this.chesses.push(queen);
@@ -139,11 +140,10 @@ export class Board {
       this.camera,
       this,
       this.cells[4][0],
-      Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+      Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
       1
     );
-    this.chesses.push(king)
-
+    this.chesses.push(king);
   }
   public render(): void {
     for (let i = 0; i < this.cells.length; ++i) {
@@ -213,47 +213,94 @@ export class Board {
         const type = el.type;
         let newChess: ChessPiece | null = null;
         console.log("типок: ", type);
-        switch (type) {
-          case "pawn":
-            newChess = new PawnFigure(
-              this.scene,
-              this.camera,
-              this,
-              cell,
-              el.color,
-              el.teamId,
-              el.id
-            );
-            console.log(newChess);
-            break;
-          case "bishop":
-            newChess = new BishopFigure(
-              this.scene,
-              this.camera,
-              this,
-              cell,
-              el.color,
-              el.teamId,
-              el.id
-            );
-            console.log(newChess);
-            break;
-        }
+        // switch (type) {
+        //   case "PawnFigure":
+        //     newChess = new PawnFigure(
+        //       this.scene,
+        //       this.camera,
+        //       this,
+        //       cell,
+        //       el.color,
+        //       el.teamId,
+        //       el.id
+        //     );
+        //     console.log(newChess);
+        //     break;
+        //   case "BishopFigure":
+        //     newChess = new BishopFigure(
+        //       this.scene,
+        //       this.camera,
+        //       this,
+        //       cell,
+        //       el.color,
+        //       el.teamId,
+        //       el.id
+        //     );
+        //     console.log(newChess);
+        //     break;
+        //   case "KnightFigure":
+        //     newChess = new KnightFigure(
+        //       this.scene,
+        //       this.camera,
+        //       this,
+        //       cell,
+        //       el.color,
+        //       el.teamId,
+        //       el.id
+        //     );
+        //     console.log(newChess);
+        //     break;
+        //   case "KingFigure":
+        //     newChess = new KingFigure(
+        //       this.scene,
+        //       this.camera,
+        //       this,
+        //       cell,
+        //       el.color,
+        //       el.teamId,
+        //       el.id
+        //     );
+        //     console.log(newChess);
+        //     break;
+        //   case "QueenFigure":
+        //     newChess = new QueenFigure(
+        //       this.scene,
+        //       this.camera,
+        //       this,
+        //       cell,
+        //       el.color,
+        //       el.teamId,
+        //       el.id
+        //     );
+        //     console.log(newChess);
+        //     break;
+        //   case "RootFigure":
+        //     newChess = new RootFigure(
+        //       this.scene,
+        //       this.camera,
+        //       this,
+        //       cell,
+        //       el.color,
+        //       el.teamId,
+        //       el.id
+        //     );
+        //     console.log(newChess);
+        //     break;
+        // }
+        const chessFigureFactory = new ChessFigureFactory(
+          this.scene,
+          this.camera,
+          this,
+          cell,
+          el.color,
+          el.teamId,
+          el.id
+        );
+        newChess = chessFigureFactory.createFigure(type);
         if (!newChess) return;
 
         this.chesses.push(newChess);
         console.log(this.chesses);
-        // if (cell) {
-        //   const newChess = new ChessPiece(
-        //     this.scene,
-        //     this.camera,
-        //     this,
-        //     cell,
-        //     el.color,
-        //     el.id
-        //   );
-        //   this.chesses.push(newChess);
-        // }
       }
     });
 
