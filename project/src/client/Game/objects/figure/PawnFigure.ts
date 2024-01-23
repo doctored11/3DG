@@ -4,7 +4,6 @@ import { Cell } from "../Cell";
 import { ChessPiece } from "./ChessPiece";
 
 export class PawnFigure extends ChessPiece {
-  protected type: string = "pawn";
   private startLineModule: number = 2;
 
   constructor(
@@ -35,18 +34,12 @@ export class PawnFigure extends ChessPiece {
 
     this.scene = scene;
 
-    this.mesh = this.createMesh(this.color, 1);
+    this.mesh = this.createMesh(this.type, 1,1);
 
     this.draw();
   }
 
-  public draw() {
-    const hook = this.cell.getHook();
-    this.mesh.position.copy(hook);
-    this.scene.add(this.mesh);
-  }
-
-  public canMove(): Cell[] {
+  private canMove(): Cell[] {
     const cellArr = this.board.getCells();
     const [indexX, indexY] = this.cell.getIndex();
     const possibleMoves: Cell[] = [];
@@ -83,7 +76,7 @@ export class PawnFigure extends ChessPiece {
     return possibleMoves;
   }
 
-  public canAttack(): Cell[] {
+  private canAttack(): Cell[] {
     const cellArr = this.board.getCells();
     const [indexX, indexY] = this.cell.getIndex();
     const movementDirection = this.getTeamId() ? 1 : -1;
@@ -111,5 +104,11 @@ export class PawnFigure extends ChessPiece {
     }
     // TODO: не забыть про случай когда есть можно на переходе -хз как, пока откладывай, но если есть идеи - делай)
     return canAttackCells;
+  }
+
+  public getFigureAction(): Cell[][]{
+    const canMoveArr = this.canMove()
+    const canAttackArr = this.canAttack()
+    return [canMoveArr,canAttackArr]
   }
 }

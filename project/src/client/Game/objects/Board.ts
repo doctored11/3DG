@@ -2,6 +2,11 @@ import { Cell } from "./Cell";
 import { BishopFigure } from "./figure/BishopFigure";
 import { ChessPiece } from "./figure/ChessPiece";
 import { PawnFigure } from "./figure/PawnFigure";
+import { RootFigure } from "./figure/RootFigure";
+import { QueenFigure } from "./figure/QueenFigure";
+import { KingFigure } from "./figure/KingFigure";
+import { KnightFigure } from "./figure/KnightFigure";
+
 export class Board {
   private cells: Cell[][] = [];
   private sizeX;
@@ -53,7 +58,7 @@ export class Board {
       );
       this.chesses.push(pawn);
     }
-    for (let j = 2; j < this.sizeX - 1; j = j + 3) {
+    for (let j = 2; j < this.sizeX - 1; j += 3) {
       const bishop = new BishopFigure(
         this.scene,
         this.camera,
@@ -75,6 +80,70 @@ export class Board {
       );
       this.chesses.push(pawn);
     }
+    for (let j = 2; j < this.sizeX - 1; j += 3) {
+      const bishop = new BishopFigure(
+        this.scene,
+        this.camera,
+        this,
+        this.cells[j][this.sizeY - 1],
+        Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+        0
+      );
+      this.chesses.push(bishop);
+    }
+    for (let z = 0; z < this.sizeX; z += 7){
+      const root = new RootFigure(
+        this.scene,
+        this.camera,
+        this,
+        this.cells[z][0],
+        Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+        1
+      );
+      this.chesses.push(root);
+    }
+    for (let z = 0; z < this.sizeX; z += 7){
+      const root = new RootFigure(
+        this.scene,
+        this.camera,
+        this,
+        this.cells[z][this.sizeY - 1],
+        Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+        0
+      );
+      this.chesses.push(root);
+    }
+    for (let v = 1; v < this.sizeX; v += 5){
+      const knight = new KnightFigure(
+        this.scene,
+        this.camera,
+        this,
+        this.cells[v][0],
+        Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+        1
+      );
+      this.chesses.push(knight);
+    }
+    const queen = new QueenFigure(
+      this.scene,
+      this.camera,
+      this,
+      this.cells[3][0],
+      Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+      1
+    );
+    this.chesses.push(queen);
+
+    const king = new KingFigure(
+      this.scene,
+      this.camera,
+      this,
+      this.cells[4][0],
+      Math.round(Math.random() * 0xFFFFFF*0.4)+0xFFFFFF*0.6,//простите если сломал (но мне нужен цвет на этом этапе)
+      1
+    );
+    this.chesses.push(king)
+
   }
   public render(): void {
     for (let i = 0; i < this.cells.length; ++i) {
