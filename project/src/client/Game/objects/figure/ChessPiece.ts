@@ -9,8 +9,9 @@ export class ChessPiece extends Figure {
   public mesh: THREE.Mesh;
   protected board: Board;
   protected id: number;
-  protected type: string = "chess";
-  protected teamId:0|1;
+  protected type = this.constructor.name;
+  protected teamId: 0 | 1;
+  protected isBigMove: boolean;
 
   constructor(
     scene: THREE.Scene,
@@ -29,14 +30,17 @@ export class ChessPiece extends Figure {
     this.draw();
     this.teamId = teamId || 0;
     this.mesh.addEventListener("click", this.onClick.bind(this));
+    this.isBigMove = false;
+
   }
+  
   protected createMesh(type : string, size: number,color : number): THREE.Mesh {
     const figureTypes : any = {
       "BishopFigure" : new THREE.SphereGeometry(size), 
       "QueenFigure" : new THREE.SphereGeometry(size*1.5),
       "PawnFigure" : new THREE.BoxGeometry(size, size, size),
-      "KnightFigure" : new THREE.BoxGeometry(size,size*1.5,size),
-      "KingFigure" : new THREE.BoxGeometry(size,size*2,size),
+      "KnightFigure" : new THREE.BoxGeometry(size,size,size*2),
+      "KingFigure" : new THREE.BoxGeometry(size*2,size*2,size*3),
       "RootFigure" : new THREE.BoxGeometry(size*1.5,size*1.5,size*1.5)
     }
     const geometry = figureTypes[type];
@@ -48,17 +52,21 @@ export class ChessPiece extends Figure {
     this.mesh.position.copy(hook);
     this.scene.add(this.mesh);
   }
+
   move(newCell: Cell) {
     this.cell = newCell;
     this.draw();
   }
+
   public getCell(): Cell {
     return this.cell;
   }
+
   public getType(): string {
     return this.type;
   }
-  public getTeamId():0|1{
+
+  public getTeamId(): 0 | 1 {
     return this.teamId;
   }
 
@@ -91,7 +99,9 @@ export class ChessPiece extends Figure {
 
     for (const attackCell of canAttackCells) {
       const attackedChess = allCheses.find(
-        (chess) => chess.getCell() === attackCell
+        (chess) =>
+          chess.getCell() === attackCell &&
+          chess.getTeamId() != this.getTeamId()
       );
       if (attackedChess) {
         arrayOfActions.push({ cell: attackCell, action: "attack" });
@@ -101,9 +111,61 @@ export class ChessPiece extends Figure {
     return arrayOfActions;
   }
 
-  public getFigureAction(): Cell[][]{
-    const canMoveCells = this.board.getCells()[0]
-    const canAttackCells = this.board.getCells()[0]
+  public getFigureAction(): Cell[][] {
+    const cellArr = this.board.getCells();
+    const [indexX, indexY] = this.cell.getIndex();
+    
+    const allfigures = this.board.getFigures();
+    
+    const actionMoves = this.getActionMoves()
+    const moveRad = this.isBigMove? cellArr.length : 2;
+
+    const canAttackCells: Cell[] = [];
+    const canMoveCells : Cell[] = [];
+    
+    for (const move of actionMoves){
+        for (let n = 1; n < moveRad ; n++){
+            const newIndexX = indexX + move.deltaX*n
+            const newIndexY = indexY + move.deltaY*n
+            
+            if (
+                newIndexX >= 0 &&
+                newIndexX < cellArr.length &&
+                newIndexY >= 0 &&
+                newIndexY < cellArr[0].length
+              ){
+                // canMoveCells.push(forwardCell) метод определен снизу 
+                const forwardCell = cellArr[newIndexX][newIndexY];
+                let isOccupied = null;
+                let occupiedTeamId = null;
+
+                for(const figure of allfigures){
+                    if (figure.getCell() == forwardCell){
+                        isOccupied = true;
+                        occupiedTeamId = figure.getTeamId();
+                    }
+                }
+
+                if (isOccupied){
+                    if(this.teamId != occupiedTeamId )
+                        canAttackCells.push(forwardCell)
+                    break
+                }
+                canMoveCells.push(forwardCell)
+              }
+            else{
+                break;
+            }
+        }
+    }
+
     return [canMoveCells,canAttackCells]
+  }
+  
+  public getActionMoves(): any{
+    return [{deltaX : 1,deltaY : 1}, {deltaX : -1,deltaY : -1}]
+  }
+  public getFigureType(){
+    return this.type
   }
 }

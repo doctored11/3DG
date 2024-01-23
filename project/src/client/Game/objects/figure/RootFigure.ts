@@ -1,16 +1,15 @@
-import * as THREE from "three";
+import * as THREE from "three"
 import { Board } from "../Board";
 import { Cell } from "../Cell";
 import { ChessPiece } from "./ChessPiece";
 
-export class BishopFigure extends ChessPiece{
+export class RootFigure extends ChessPiece{
 
-    type = this.constructor.name;
     private actionMoves = [
-        {deltaX : 1, deltaY : 1},
-        {deltaX : -1,deltaY : -1},
-        {deltaX : -1,deltaY : 1},
-        {deltaX : 1, deltaY : -1}
+        {deltaX : 0, deltaY : 1},
+        {deltaX : 1,deltaY : 0},
+        {deltaX : -1,deltaY : 0},
+        {deltaX : 0, deltaY : -1}
     ]
 
     constructor(
@@ -23,7 +22,7 @@ export class BishopFigure extends ChessPiece{
         id?:number|null
         ) {
 
-            super(scene, camera, board, cell, color, id || null,teamId);
+        super(scene, camera, board, cell, color, id || null,teamId);
 
     
         this.cell = cell;
@@ -33,10 +32,11 @@ export class BishopFigure extends ChessPiece{
         this.isBigMove = true;
 
         this.mesh = this.createMesh(this.type, 1,1);//ну это жесткий прикол -_-
+        
         this.draw()
 
     }
-
+    
     public getActionMoves(){
         return this.actionMoves
     }
