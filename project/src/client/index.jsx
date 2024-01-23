@@ -21,10 +21,10 @@ function App() {
 
   React.useEffect(() => {
     console.log(typeEvent);
-    if (typeEvent != "create") return; //потом поменять логику
+    if (!typeEvent ) return; //потом поменять логику
     handleNicknameConfirm();
 
-    const game = new Game( "game1", gameZone); //ключ по которому читает сервер(как бы ключ игры потом наверное)
+    const game = new Game(typeEvent, gameZone); //ключ по которому читает сервер(как бы ключ игры потом наверное)
     
   }, [typeEvent]);
 
@@ -44,6 +44,7 @@ function App() {
           {playerNickname && <MainMenu onButtonClick={handleButtonClick} />}
         </>
       )}
+      
     </div>
   );
 }

@@ -5,15 +5,12 @@ import http from "http";
 import { indexTemplate } from "../indexTemplate";
 
 class Connector {
-  boards: Map<number, Board>;
+  boards: Map<string, Board>;
   server: http.Server;
   app: any;
 
-  constructor(
-    app: any,
-    server: http.Server
-  ) {
-    this.boards =new Map<number, Board>();
+  constructor(app: any, server: http.Server) {
+    this.boards = new Map<string, Board>();
     this.server = server;
 
     this.app = app;
@@ -26,20 +23,26 @@ class Connector {
 
     this.app.post("/update-board/:boardId", this.handleUpdateBoard.bind(this));
     this.app.get("/", this.handleHomePage.bind(this));
-    this.app.post("/create-board", (req: express.Request, res: express.Response) => {
-      const boardId = req.body.boardId || -1; 
-      this.handleCreateBoard(req, res, boardId);
-    });   
+    this.app.post(
+      "/create-board",
+      (req: express.Request, res: express.Response) => {
+        const boardId = req.body.boardId || -1;
+        this.handleCreateBoard(req, res, boardId);
+      }
+    );
     this.app.get("/get-board/:boardId", this.handleGetBoard.bind(this));
+    this.app.get("/get-board-keys", this.handleGetBoardKeys.bind(this));
+
     this.server.on("request", this.app);
   }
 
   handleUpdateBoard(req: express.Request, res: express.Response) {
-    const boardId = parseInt(req.params.boardId);
+    const boardId = req.params.boardId;
     const { chessArr } = req.body;
     const board = this.boards.get(boardId);
-    console.log(`попытка получить(серверу) доску с id ${boardId}, до парсинга${req.params.boardId}`);
-
+    console.log(
+      `попытка получить(серверу) доску с id ${boardId}, до парсинга${req.params.boardId}`
+    );
 
     if (board) {
       console.log(`получено обновление доски с id:${boardId} от клиента`);
@@ -55,16 +58,20 @@ class Connector {
     res.send(indexTemplate(content));
   }
 
-  handleCreateBoard(req: express.Request, res: express.Response, boardId:number = -1) {
+  handleCreateBoard(
+    req: express.Request,
+    res: express.Response,
+    boardId: string = "-1"
+  ) {
     const newBoard = new Board();
-    const newBoardId = boardId ;
+    const newBoardId = boardId;
     this.boards.set(newBoardId, newBoard);
     console.log(`доска с id инициализация ${newBoardId}`);
-    console.log(this.boards)
+    console.log(this.boards);
     res.json({ boardId: newBoardId });
   }
   handleGetBoard(req: express.Request, res: express.Response) {
-    const boardId = parseInt(req.params.boardId);
+    const boardId = req.params.boardId;
     const board = this.boards.get(boardId);
 
     if (board) {
@@ -73,6 +80,10 @@ class Connector {
     } else {
       res.status(404).send(`Board ${boardId} not found`);
     }
+  }
+  handleGetBoardKeys(req: express.Request, res: express.Response) {
+    const boardKeys = Array.from(this.boards.keys());
+    res.json(boardKeys);
   }
 
   start() {

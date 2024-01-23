@@ -19,7 +19,7 @@ interface ClientPlayer {
 
 export class Game {
   // private socket: any;
-  private key: string;
+  // private key: string;
   private gameZone: HTMLDivElement;
   private scene: THREE.Scene = new THREE.Scene();
   private clientId: string = "_0";
@@ -29,7 +29,7 @@ export class Game {
   private playerCamera!: THREE.PerspectiveCamera;
   private board!: Board;
 
-  private boardId: number | null = -1;
+  private boardId: string | null = "-1";
 
   public player: { x: number; y: number; color: string };
 
@@ -37,7 +37,7 @@ export class Game {
 
   constructor(key: string, gameZone: HTMLDivElement) {
     // this.socket = socket;
-    this.key = key;
+    this.boardId = key;
     this.gameZone = gameZone;
     this.initThree();
     this.setupEventHandlers();
@@ -56,18 +56,18 @@ export class Game {
 
     // this.socket.emit("board update", chessArr);
 
-    fetch("/create-board", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ boardId: -1 }), // Здесь передается -1 как значение id (вы можете изменить это на нужное вам значение)
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const newBoardId = data.boardId;
-        // Используйте newBoardId по своему усмотрению
-      });
+    // fetch("/create-board", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({ boardId: -1 }), // Здесь передается -1 как значение id (вы можете изменить это на нужное вам значение)
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     const newBoardId = data.boardId;
+    //     // Используйте newBoardId по своему усмотрению
+    //   });
 
     this.render();
     this.getLoop()
