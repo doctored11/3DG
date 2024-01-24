@@ -7,6 +7,8 @@ import { QueenFigure } from "./figure/QueenFigure";
 import { KingFigure } from "./figure/KingFigure";
 import { KnightFigure } from "./figure/KnightFigure";
 import { ChessFigureFactory } from "./figure/FigureFactory";
+import { Rock } from "./figure/special_objects/Rock"
+import { SpecialObject } from "./figure/special_objects/SpecialObject";
 
 export class Board {
   private cells: Cell[][] = [];
@@ -15,6 +17,7 @@ export class Board {
   protected scene: THREE.Scene;
   protected camera: THREE.Camera;
   protected chesses: ChessPiece[] = [];
+  protected environment : SpecialObject[] = [];
 
   constructor(
     scene: THREE.Scene,
@@ -44,9 +47,9 @@ export class Board {
       }
     }
 
-    this.figuresInit();
+    this.ObjectsInit();
   }
-  private figuresInit(): void {
+  private ObjectsInit(): void {
     // тут будет начальная расстановка фигур
     for (let i = 0; i < this.sizeX; i++) {
       const pawn = new PawnFigure(
@@ -143,7 +146,17 @@ export class Board {
       Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
       1
     );
-    this.chesses.push(king);
+    this.chesses.push(king)
+
+    const rock = new Rock(
+      this.scene,
+      this.camera,
+      this,
+      this.cells[3][3],
+      0xAAAAA
+    )
+    this.environment.push(rock)
+
   }
   public render(): void {
     for (let i = 0; i < this.cells.length; ++i) {
@@ -151,9 +164,14 @@ export class Board {
         this.cells[i][j].draw();
       }
     }
+
     this.chesses.forEach((el) => {
       el.draw();
     });
+
+    this.environment.forEach((el) => {
+      el.draw()
+    })
   }
   public removeChess(chess: ChessPiece) {
     const index = this.chesses.indexOf(chess);
@@ -179,6 +197,9 @@ export class Board {
   }
   public getFigures(): ChessPiece[] {
     return this.chesses;
+  }
+  public getEnviroment(): SpecialObject[]{
+    return this.environment;
   }
   public restoreFigures(arr: ChessData[]): void {
     // console.log(arr);

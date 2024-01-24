@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { Cell } from "../Cell";
 import { Figure } from "./Figure";
 import { Board } from "../Board";
-import { BishopFigure } from "./BishopFigure";
+
 
 export class ChessPiece extends Figure {
   protected cell: Cell;
@@ -116,6 +116,7 @@ export class ChessPiece extends Figure {
     const [indexX, indexY] = this.cell.getIndex();
     
     const allfigures = this.board.getFigures();
+    const allEnv = this.board.getEnviroment();
     
     const actionMoves = this.getActionMoves()
     const moveRad = this.isBigMove? cellArr.length : 2;
@@ -144,6 +145,13 @@ export class ChessPiece extends Figure {
                         isOccupied = true;
                         occupiedTeamId = figure.getTeamId();
                     }
+                }
+                
+                for (const env of allEnv){
+                  if (env.getCell() == forwardCell){
+                    isOccupied = true;
+                    occupiedTeamId = -1
+                  }
                 }
 
                 if (isOccupied){

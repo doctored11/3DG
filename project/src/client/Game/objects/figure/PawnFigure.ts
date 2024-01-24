@@ -4,7 +4,7 @@ import { Cell } from "../Cell";
 import { ChessPiece } from "./ChessPiece";
 
 export class PawnFigure extends ChessPiece {
-  private startLineModule: number = 2;
+  private startLineModule: number = 1;
 
   constructor(
     scene: THREE.Scene,
@@ -21,14 +21,14 @@ export class PawnFigure extends ChessPiece {
     const [x, y] = cell.getIndex();
     const cellsArr = this.board.getCells();
     if (
-      (teamId && y != this.startLineModule) ||
-      (!teamId && y != cellsArr[0].length - this.startLineModule)
+      ( y != this.startLineModule) ||
+      ( y != cellsArr[0].length - 1 )
     ) {
       this.cell =
         cellsArr[x][
           teamId
             ? this.startLineModule
-            : cellsArr[0].length - this.startLineModule
+            : cellsArr[0].length - this.startLineModule - 1
         ];
     }
 
@@ -45,13 +45,23 @@ export class PawnFigure extends ChessPiece {
     const possibleMoves: Cell[] = [];
 
     const allfigures = this.board.getFigures();
+    const allEnv = this.board.getEnviroment();
     const movementDirection = this.getTeamId() ? 1 : -1;
 
     const forwardCell = cellArr[indexX][indexY + movementDirection];
-    const isOccupied = allfigures.some(
-      //если есть идеи - лучше реализовать иначе
-      (chess) => chess.getCell() == forwardCell
-    );
+    let isOccupied = null;
+
+    for(const figure of allfigures){
+      if (figure.getCell() == forwardCell){
+          isOccupied = true;
+      }
+    }
+  
+    for (const env of allEnv){
+      if (env.getCell() == forwardCell){
+        isOccupied = true;
+      }
+    }
 
     if (forwardCell && !isOccupied) {
       possibleMoves.push(forwardCell);
@@ -63,9 +73,16 @@ export class PawnFigure extends ChessPiece {
       if (indexY == startLine) {
         const secondForwardCell =
           cellArr[indexX][indexY + 2 * movementDirection];
-        const isSecondOccupied = allfigures.some(
+
+        let isSecondOccupied = allfigures.some(
           (chess) => chess.getCell() == secondForwardCell
         );
+
+        for (const env of allEnv){
+          if (env.getCell() == secondForwardCell){
+            isSecondOccupied = true;
+          }
+        }
 
         if (secondForwardCell && !isSecondOccupied) {
           possibleMoves.push(secondForwardCell);
