@@ -81,7 +81,7 @@ export class Game {
 
     this.scene.background = new THREE.Color(0x00ff00);
 
-    this.board = new Board(this.scene, this.playerCamera, 9, 9);
+    this.board = new Board(this.scene, this.playerCamera, 8, 8);
     this.board.render();
 
     const boardCells = this.board.getCells();
