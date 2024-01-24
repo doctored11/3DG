@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import LobbiesList from "./LobbiesList/LobbiesList";
 import Player from "../Player/Player";
+import styles from "./mainMune.css";
 
 interface MainMenuProps {
   onButtonClick: (id: string) => void;
@@ -20,11 +21,12 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   const [name, setName] = useState("");
   const [boardKeys, setBoardKeys] = useState<string[]>([]);
   const player = clientPlayer;
-  console.log(player, "MM")
+  console.log(player, "MM");
 
   useEffect(() => {
     fetchBoardKeys();
   }, []);
+
   const fetchBoardKeys = async () => {
     try {
       const response = await fetch("http://localhost:3000/get-board-keys");
@@ -59,19 +61,13 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   };
 
   return (
-    <div className="main-menu">
-      <div className="frame">
-        <div className="head">
-          <p className="nick-name">{name}</p>
-          <span>00</span>
-          {/* {boardKeys && boardKeys.length > 0 ? (
-            <p>{boardKeys.join(", ")}</p>
-          ) : (
-            <p>No board keys available</p>
-          )} */}
-          <span>11</span>
+    <div className={styles.mainMenu}>
+      <div className={styles.frame}>
+        <div className={styles.head}>
+          <p className={styles.nickName}>{name}</p>
+          
           <button
-            className="createGame"
+            className={styles.createGame}
             id="create"
             onClick={() => handleButtonClick()}
           >
@@ -90,6 +86,3 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   );
 };
 
-interface BoardKeysResponse {
-  keys: string[] | null;
-}

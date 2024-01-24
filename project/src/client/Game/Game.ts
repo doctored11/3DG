@@ -7,6 +7,8 @@ import { Figure } from "./objects/figure/Figure";
 import { Cell } from "./objects/Cell";
 import { ChessData } from "./objects/Board";
 import Player from "../Player/Player";
+const FREQUENCY_UPDATE = 5;
+
 
 export class Game {
   // private socket: any;
@@ -25,6 +27,16 @@ export class Game {
   private boardId: string | null = "-1";
 
   private activeChessFigure: ChessPiece | null = null;
+
+  private onGameStateUpdateCallback: (data: {
+    step: number;
+    playingSide: number;
+  }) => void = () => {};
+  public onGameStateUpdate(
+    callback: (data: { step: number; playingSide: number }) => void
+  ) {
+    this.onGameStateUpdateCallback = callback;
+  }
 
   constructor(player: Player, gameId: string, gameZone: HTMLDivElement) {
     // this.socket = socket;
@@ -96,6 +108,10 @@ export class Game {
         }
         //
 
+        this.onGameStateUpdateCallback({
+          step: this.board.getStep(),
+          playingSide: this.player.getPlayingSide(),
+        });
         console.log(data.players, "получил ", this.player.getId());
         this.render();
       });
@@ -331,7 +347,12 @@ export class Game {
           this.board.setStep(data.stepNumber);
           this.render();
         });
-    }, 1000 / 2);
+
+      this.onGameStateUpdateCallback({
+        step: this.board.getStep(),
+        playingSide: this.player.getPlayingSide(),
+      });
+    }, 1000 / FREQUENCY_UPDATE);
   }
 
   cellColorOf() {
