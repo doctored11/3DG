@@ -1,5 +1,5 @@
 import * as express from "express";
-import { Board } from "./Board";
+import { Board, ChessData } from "./Board";
 
 import http from "http";
 import { indexTemplate } from "../indexTemplate";
@@ -22,7 +22,13 @@ class Connector {
     this.app.use(express.json());
 
     this.app.post("/update-board/:boardId", this.handleUpdateBoard.bind(this));
+    this.app.post("/update-env/:boardId", this.handleEnvBoard.bind(this));
+
     this.app.get("/", this.handleHomePage.bind(this));
+    this.app.get("/get-board/:boardId", this.handleGetBoard.bind(this));
+    this.app.get("/get-enviroment/:boardId", this.handleGetEnv.bind(this));
+    this.app.get("/get-board-keys", this.handleGetBoardKeys.bind(this));
+
     this.app.post(
       "/create-board",
       (req: express.Request, res: express.Response) => {
@@ -31,11 +37,11 @@ class Connector {
         this.handleCreateBoard(req, res, boardId, playersIds);
       }
     );
-    this.app.get("/get-board/:boardId", this.handleGetBoard.bind(this));
-    this.app.get("/get-board-keys", this.handleGetBoardKeys.bind(this));
 
     this.server.on("request", this.app);
   }
+
+  //
 
   handleUpdateBoard(req: express.Request, res: express.Response) {
     const boardId = req.params.boardId;
@@ -52,10 +58,43 @@ class Connector {
     if (board) {
       console.log(`получено обновление доски с id:${boardId} от клиента`);
       console.log("попытка добавить игрока, ", board.getPlayers(), newPlayerId);
-      if (board.getPlayerCount() < 2 && newPlayerId)
+      if (board.getPlayerCount() < 2 && newPlayerId) {
         board.addPlayer(newPlayerId);
+        board.setStep(0);
+      }
       // this.boards.get(boardId)?.figureArrUpdate(chessArr);
-      board.figureArrUpdate(chessArr);
+      if (!arraysAreEqual(chessArr, board.getFigureArr())) {
+        board.figureArrUpdate(chessArr);
+        board.nextStep();
+        console.log("Ход No", board.getStep());
+      }
+
+      res.status(200).send(`Board ${boardId} updated successfully`);
+    } else {
+      res.status(404).send(`Board ${boardId} not found`);
+    }
+    console.log(this.boards);
+  }
+
+  handleEnvBoard(req: express.Request, res: express.Response) {
+    const boardId = req.params.boardId;
+
+    const envArr = req.body.envArr;
+    const newPlayerId = req.body.playerId;
+    console.log("---- : ", req.body);
+
+    const board = this.boards.get(boardId);
+    console.log(
+      `попытка получить(серверу) природу) с id ${boardId}, до парсинга${req.params.boardId}`
+    );
+
+    if (board) {
+      console.log(
+        `получено обновление природы доски с id:${boardId} от клиента`
+      );
+
+      board.setEnviromentArr(envArr);
+
       res.status(200).send(`Board ${boardId} updated successfully`);
     } else {
       res.status(404).send(`Board ${boardId} not found`);
@@ -92,17 +131,38 @@ class Connector {
 
     if (board) {
       const chessArr = board.getFigureArr();
-      console.log(board);
+      // console.log(board);
       const players = board.getPlayers();
+      const stepNumber = board.getStep();
       console.log("отдаем : ", {
+        // chessArr: chessArr,
+        players: players,
+        stepNumber: stepNumber,
+      });
+      res.json({
         chessArr: chessArr,
         players: players,
+        stepNumber: stepNumber,
       });
-      res.json({ chessArr: chessArr, players: players });
     } else {
       res.status(404).send(`Board ${boardId} not found`);
     }
   }
+
+  handleGetEnv(req: express.Request, res: express.Response) {
+    const boardId = req.params.boardId;
+    const board = this.boards.get(boardId);
+
+    if (board) {
+      const envArr = board.getEnviromentArr();
+      // console.log(board);
+
+      res.json({ chessArr: envArr });
+    } else {
+      res.status(404).send(`Board ${boardId} not found`);
+    }
+  }
+
   handleGetBoardKeys(req: express.Request, res: express.Response) {
     const boardKeys = Array.from(this.boards.keys());
     res.json(boardKeys);
@@ -114,6 +174,21 @@ class Connector {
       console.log(`Server is running on http://localhost:${PORT}`);
     });
   }
+}
+function arraysAreEqual(arr1: ChessData[], arr2: ChessData[]) {
+  const isEqual =
+    arr1.length === arr2.length &&
+    arr1.every((obj1, index) => {
+      const obj2 = arr2[index];
+      return Object.entries(obj1).every(([key, value]) => obj2[key] === value);
+    });
+
+  console.log("________________");
+  console.log(arr1, "\n\n____9_9_____\n\n");
+  console.log(arr2, "0___0");
+  console.log("массивы равны :", isEqual);
+
+  return isEqual;
 }
 
 export default Connector;

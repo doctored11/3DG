@@ -1,0 +1,25 @@
+.frame {
+  padding: 0 10%;
+}
+.head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  padding: 10% 0;
+}
+
+.createGame {
+  background-color: #ffa500;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.createGame:hover {
+  background-color: #ff8c00;
+}

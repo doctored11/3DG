@@ -21,14 +21,14 @@ export class PawnFigure extends ChessPiece {
     const [x, y] = cell.getIndex();
     const cellsArr = this.board.getCells();
     if (
-      ( y != this.startLineModule) ||
-      ( y != cellsArr[0].length - 1 )
+      (teamId && y != this.startLineModule) ||
+      (!teamId && y != cellsArr[0].length-1 - this.startLineModule)
     ) {
       this.cell =
         cellsArr[x][
           teamId
             ? this.startLineModule
-            : cellsArr[0].length - this.startLineModule - 1
+            : cellsArr[0].length-1 - this.startLineModule
         ];
     }
 
@@ -68,7 +68,7 @@ export class PawnFigure extends ChessPiece {
 
       const startLine = this.getTeamId()
         ? this.startLineModule
-        : cellArr[0].length - this.startLineModule;
+        : cellArr[0].length-1 - this.startLineModule;
 
       if (indexY == startLine) {
         const secondForwardCell =

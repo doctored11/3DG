@@ -7,16 +7,20 @@ import "./main.css";
 import { MainEntrance } from "./MainEntrance/MainEntrance.tsx";
 import { MainMenu } from "./MainMenu/MainMenu.tsx";
 import Player from "./Player/Player.ts";
+import HUD from "./HUD/Hud.tsx";
 
 // const socket = io();
 
 const gameZone = document.getElementById("game-zone");
 const player = new Player(Math.round(Math.random() * 1000));
 
-
 function App() {
   const [playerNickname, setPlayerNickname] = React.useState("");
   const [gameId, setGameId] = React.useState("");
+  const [gameState, setGameState] = React.useState({
+    step: 0,
+    playingSide: -1,
+  });
 
   function handleNicknameConfirm() {
     console.log("Никнейм :", playerNickname);
@@ -26,9 +30,13 @@ function App() {
     console.log(gameId);
     if (!gameId) return; //потом поменять логику
     handleNicknameConfirm();
-    console.log("перед созданием игры ", player)
+    console.log("перед созданием игры ", player);
 
-    const game = new Game(player,gameId, gameZone); //ключ по которому читает сервер(как бы ключ игры потом наверное)
+    const game = new Game(player, gameId, gameZone); //ключ по которому читает сервер(как бы ключ игры потом наверное)
+
+    game.onGameStateUpdate((data) => {
+      setGameState(data);
+    });
   }, [gameId]);
 
   const handleConfirm = (nickname) => {
@@ -58,10 +66,13 @@ function App() {
             <MainMenu
               onButtonClick={handleButtonClick}
               onLobbyItemClick={handleLobbyItemClick}
-              clientPlayer = {player}
+              clientPlayer={player}
             />
           )}
         </>
+      )}
+      {gameId && (
+        <HUD step={gameState.step} playingSide={gameState.playingSide} />
       )}
     </div>
   );

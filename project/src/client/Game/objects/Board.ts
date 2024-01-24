@@ -7,7 +7,7 @@ import { QueenFigure } from "./figure/QueenFigure";
 import { KingFigure } from "./figure/KingFigure";
 import { KnightFigure } from "./figure/KnightFigure";
 import { ChessFigureFactory } from "./figure/FigureFactory";
-import { Rock } from "./figure/special_objects/Rock"
+import { Rock } from "./figure/special_objects/Rock";
 import { SpecialObject } from "./figure/special_objects/SpecialObject";
 
 export class Board {
@@ -17,7 +17,8 @@ export class Board {
   protected scene: THREE.Scene;
   protected camera: THREE.Camera;
   protected chesses: ChessPiece[] = [];
-  protected environment : SpecialObject[] = [];
+  protected environment: SpecialObject[] = [];
+  private step: number = 1;
 
   constructor(
     scene: THREE.Scene,
@@ -146,17 +147,16 @@ export class Board {
       Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
       1
     );
-    this.chesses.push(king)
+    this.chesses.push(king);
 
     const rock = new Rock(
       this.scene,
       this.camera,
       this,
-      this.cells[3][3],
-      0xAAAAA
-    )
-    this.environment.push(rock)
-
+      this.cells[ Math.round(Math.random() * 5)][3],
+      0xaaaaa
+    );
+    this.environment.push(rock);
   }
   public render(): void {
     for (let i = 0; i < this.cells.length; ++i) {
@@ -170,8 +170,8 @@ export class Board {
     });
 
     this.environment.forEach((el) => {
-      el.draw()
-    })
+      el.draw();
+    });
   }
   public removeChess(chess: ChessPiece) {
     const index = this.chesses.indexOf(chess);
@@ -179,7 +179,12 @@ export class Board {
       this.chesses.splice(index, 1);
     }
   }
-
+  public removeEnv(env: SpecialObject) {
+    const index = this.environment.indexOf(env);
+    if (index !== -1) {
+      this.environment.splice(index, 1);
+    }
+  }
   private getAllCellsMeshes(): THREE.Mesh[] {
     const meshes: THREE.Mesh[] = [];
     for (const row of this.cells) {
@@ -198,7 +203,7 @@ export class Board {
   public getFigures(): ChessPiece[] {
     return this.chesses;
   }
-  public getEnviroment(): SpecialObject[]{
+  public getEnviroment(): SpecialObject[] {
     return this.environment;
   }
   public restoreFigures(arr: ChessData[]): void {
@@ -234,80 +239,7 @@ export class Board {
         const type = el.type;
         let newChess: ChessPiece | null = null;
         console.log("типок: ", type);
-        // switch (type) {
-        //   case "PawnFigure":
-        //     newChess = new PawnFigure(
-        //       this.scene,
-        //       this.camera,
-        //       this,
-        //       cell,
-        //       el.color,
-        //       el.teamId,
-        //       el.id
-        //     );
-        //     console.log(newChess);
-        //     break;
-        //   case "BishopFigure":
-        //     newChess = new BishopFigure(
-        //       this.scene,
-        //       this.camera,
-        //       this,
-        //       cell,
-        //       el.color,
-        //       el.teamId,
-        //       el.id
-        //     );
-        //     console.log(newChess);
-        //     break;
-        //   case "KnightFigure":
-        //     newChess = new KnightFigure(
-        //       this.scene,
-        //       this.camera,
-        //       this,
-        //       cell,
-        //       el.color,
-        //       el.teamId,
-        //       el.id
-        //     );
-        //     console.log(newChess);
-        //     break;
-        //   case "KingFigure":
-        //     newChess = new KingFigure(
-        //       this.scene,
-        //       this.camera,
-        //       this,
-        //       cell,
-        //       el.color,
-        //       el.teamId,
-        //       el.id
-        //     );
-        //     console.log(newChess);
-        //     break;
-        //   case "QueenFigure":
-        //     newChess = new QueenFigure(
-        //       this.scene,
-        //       this.camera,
-        //       this,
-        //       cell,
-        //       el.color,
-        //       el.teamId,
-        //       el.id
-        //     );
-        //     console.log(newChess);
-        //     break;
-        //   case "RootFigure":
-        //     newChess = new RootFigure(
-        //       this.scene,
-        //       this.camera,
-        //       this,
-        //       cell,
-        //       el.color,
-        //       el.teamId,
-        //       el.id
-        //     );
-        //     console.log(newChess);
-        //     break;
-        // }
+
         const chessFigureFactory = new ChessFigureFactory(
           this.scene,
           this.camera,
@@ -322,6 +254,55 @@ export class Board {
 
         this.chesses.push(newChess);
         console.log(this.chesses);
+      }
+    });
+
+    this.render();
+  }
+
+  public restoreEnv(arr: EnvData[]): void {
+    const currentEnv = [...this.getEnviroment()];
+    console.log("Восстанавливаем ПРИРОДУ ", arr)
+
+    if (arr.length < 1) return;
+
+    const removedFigures = currentEnv.filter(
+      (env) => !arr.some((el) => el.id === env.getId())
+    );
+    if (removedFigures.length > 0) {
+      removedFigures.forEach((renENV) => {
+        this.removeEnv(renENV);
+      });
+    }
+
+    arr.forEach((el) => {
+      const existingEnv = currentEnv.find((env) => env.getId() === el.id);
+
+      if (!existingEnv) {
+        const cell = this.getCellById(el.cellId);
+        if (!cell) return;
+        const type = el.type;
+        let newEnvEl: SpecialObject | null = null;
+        console.log("Природа типа: ", type);
+
+        switch (type) {
+          case "Rock":
+            newEnvEl = new Rock(
+              this.scene,
+              this.camera,
+              this,
+              cell,
+              0xff00ff,
+              el.id
+            );
+            break;
+          // еще куст
+        }
+
+        if (!newEnvEl) return;
+
+        this.environment.push(newEnvEl);
+        console.log(this.environment);
       }
     });
 
@@ -348,6 +329,32 @@ export class Board {
     });
     return figuresData;
   }
+
+  getEnvToSend(): EnvData[] {
+    const envData = this.getEnviroment().map((el) => {
+      const position = el.getCell().getId();
+      const id = el.getId();
+      const type = el.getType();
+
+      return {
+        id: id,
+        type: type,
+        cellId: position,
+      };
+    });
+    return envData;
+  }
+
+  public nextStep(): void {
+    console.log("++++ХОДД :", this.step + 1);
+    this.step++;
+  }
+  public getStep(): number {
+    return this.step;
+  }
+  public setStep(newStep: number) {
+    this.step = newStep;
+  }
   public getCellById(id: number): Cell | undefined {
     for (const row of this.cells) {
       const foundCell = row.find((cell) => cell.getId() == id);
@@ -366,4 +373,10 @@ export interface ChessData {
   color: number;
   cellId: number;
   teamId: 0 | 1;
+}
+export interface EnvData {
+  id: number;
+  type: string;
+
+  cellId: number;
 }
