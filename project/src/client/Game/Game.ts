@@ -84,6 +84,18 @@ export class Game {
           }
         }
 
+        //
+        console.log("camSide:  _", this.player.getPlayingSide());
+        if (this.player.getPlayingSide() == 1) {
+          this.playerCamera.position.set(37, 38, 25);
+          this.playerCamera.lookAt(new THREE.Vector3(37, 43, 5));
+        } else {
+          this.playerCamera.up.set(0, 0, 1);
+          this.playerCamera.position.set(37, 43, 25);
+          this.playerCamera.lookAt(new THREE.Vector3(37, 38, 5));
+        }
+        //
+
         console.log(data.players, "получил ", this.player.getId());
         this.render();
       });
@@ -115,9 +127,20 @@ export class Game {
     this.board.render();
 
     const boardCells = this.board.getCells();
+    // console.log("camSide:  _", this.player.getPlayingSide());
+    // if (this.player.getPlayingSide() == 1) {
+    //   this.playerCamera.position.add(new THREE.Vector3(37, 38, 25));
+    //   this.playerCamera.lookAt(new THREE.Vector3(37, 41, 5));
+    // } else {
+    //   this.playerCamera.up.set(0, 0, 1);
+    //   this.playerCamera.position.set(37, 43, 25);
+    //   this.playerCamera.lookAt(new THREE.Vector3(37, 38, 5));
+    // }
 
-    this.playerCamera.position.add(new THREE.Vector3(37, 38, 25));
-    this.playerCamera.lookAt(new THREE.Vector3(37, 41, 5));
+    this.playerCamera.up.set(0, 0, 1);
+    this.playerCamera.position.set(37, 43, 25);
+    this.playerCamera.lookAt(new THREE.Vector3(37, 44, 2));
+    //
     this.playerCamera.setFocalLength(3);
   }
 
