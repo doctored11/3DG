@@ -3,98 +3,77 @@ import * as ReactDom from "react-dom";
 import { Header } from "./Header/Header.tsx";
 import { Game } from "./Game/Game.ts";
 import * as THREE from "three";
-import "./main.css"
+import "./main.css";
+import { MainEntrance } from "./MainEntrance/MainEntrance.tsx";
+import { MainMenu } from "./MainMenu/MainMenu.tsx";
+import Player from "./Player/Player.ts";
+import HUD from "./HUD/Hud.tsx";
 
-const socket = io();
+// const socket = io();
 
 const gameZone = document.getElementById("game-zone");
+const player = new Player(Math.round(Math.random() * 1000));
 
 function App() {
   const [playerNickname, setPlayerNickname] = React.useState("");
-  const [isNicknameConfirmed, setNicknameConfirmed] = React.useState(false);
+  const [gameId, setGameId] = React.useState("");
+  const [gameState, setGameState] = React.useState({
+    step: 0,
+    playingSide: -1,
+  });
 
   function handleNicknameConfirm() {
     console.log("Никнейм :", playerNickname);
-    socket.emit("new player", playerNickname);
-    setNicknameConfirmed(true);
   }
-  
 
   React.useEffect(() => {
-    if (!isNicknameConfirmed) return;
-    const game = new Game(socket, "game1", gameZone); //ключ по которому читает сервер(как бы ключ игры потом наверное)
-    const usersPromise = game.listen("users update");
-    const myUserPromise = game.listen("generate");
+    console.log(gameId);
+    if (!gameId) return; //потом поменять логику
+    handleNicknameConfirm();
+    console.log("перед созданием игры ", player);
 
-    usersPromise.then((users) => {
-      console.log("онлайн челики: " + JSON.stringify(users));
+    const game = new Game(player, gameId, gameZone); //ключ по которому читает сервер(как бы ключ игры потом наверное)
+
+    game.onGameStateUpdate((data) => {
+      setGameState(data);
     });
+  }, [gameId]);
 
-    //
-    // временно пример
-    //
-    const movement = {
-      up: false,
-      down: false,
-      left: false,
-      right: false,
-    };
+  const handleConfirm = (nickname) => {
+    console.log("ваш никчемный ник: " + nickname);
+    setPlayerNickname(nickname);
+  };
 
-    document.addEventListener("keydown", (event) => {
-      switch (event.key) {
-        case "ArrowUp":
-          movement.up = true;
-          break;
-        case "ArrowDown":
-          movement.down = true;
-          break;
-        case "ArrowLeft":
-          movement.left = true;
-          break;
-        case "ArrowRight":
-          movement.right = true;
-          break;
-      }
-    });
+  const handleButtonClick = (id) => {
+    console.log(`Кнопка с id ${id} кликнута `);
+    setGameId(id);
+  };
+  const handleLobbyItemClick = ({ id, status }) => {
+    console.log(`Клик по лобби в App с id ${id}|${status}`);
 
-    document.addEventListener("keyup", (event) => {
-      switch (event.key) {
-        case "ArrowUp":
-          movement.up = false;
-          break;
-        case "ArrowDown":
-          movement.down = false;
-          break;
-        case "ArrowLeft":
-          movement.left = false;
-          break;
-        case "ArrowRight":
-          movement.right = false;
-          break;
-      }
-    });
-    //
-    //
-    //
-    async function gameLoop() {
-      const {id,color} = await myUserPromise;
-      console.log("0___")
-      console.log(id)
-      setInterval(() => {
-        if (!id) return;
-        
-        socket.emit("movement", { id, movement });
-      }, 1000 / 60);
+    if (status == "play") {
+      player.setCurrentGameId(id);
     }
-    gameLoop();
-  }, [isNicknameConfirmed]);
-
+    console.log(player);
+    handleButtonClick(id);
+  };
   return (
     <div>
-      <Header
-        onNicknameConfirm={handleNicknameConfirm}
-        onNicknameChange={(newNickname) => setPlayerNickname(newNickname)}
-      />
+      {!gameId && (
+        <>
+          {!playerNickname && <MainEntrance onConfirm={handleConfirm} />}
+          {playerNickname && (
+            <MainMenu
+              onButtonClick={handleButtonClick}
+              onLobbyItemClick={handleLobbyItemClick}
+              clientPlayer={player}
+            />
+          )}
+        </>
+      )}
+      {gameId && (
+        <HUD step={gameState.step} playingSide={gameState.playingSide} />
+      )}
     </div>
   );
 }
