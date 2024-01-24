@@ -40,6 +40,7 @@ export class Game {
 
   private setupEventHandlers() {
     const chessArr = this.board.getChessToSend();
+
     console.log("ВХОД");
     console.log(chessArr);
     const plId = this.player.getId();
@@ -53,7 +54,10 @@ export class Game {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ chessArr: chessArr, playerId: plId }),
+        body: JSON.stringify({
+          chessArr: chessArr,
+          playerId: plId,
+        }),
       });
     }
 
@@ -64,6 +68,7 @@ export class Game {
 
         this.board.restoreFigures(data.chessArr);
         this.gamersId.push(data.players);
+        this.board.setStep(data.stepNumber);
         console.log(data.players);
         for (const playerId in data.players) {
           if (data.players.hasOwnProperty(playerId)) {
@@ -207,19 +212,19 @@ export class Game {
         this.activeChessFigure?.getTeamId() == this.player.getPlayingSide();
 
       //если шаг доски синхронизировать то ок:
-      // canMoveIt =
-      //   canMoveIt &&
-      //   (this.player.getPlayingSide()
-      //     ? this.board.getStep() % 2 != 0
-      //     : this.board.getStep() % 2 == 0);
-      // console.log(
-      //   "Статус хода ",
-      //   canMoveIt,
-      //   this.player.getPlayingSide(),
-      //   this.board.getStep(),
-      //   this.board.getStep() % 2 != 0,
-      //   this.board.getStep() % 2 == 0
-      // );
+      canMoveIt =
+        canMoveIt &&
+        (this.player.getPlayingSide()
+          ? this.board.getStep() % 2 != 0
+          : this.board.getStep() % 2 == 0);
+      console.log(
+        "Статус хода ",
+        canMoveIt,
+        this.player.getPlayingSide(),
+        this.board.getStep(),
+        this.board.getStep() % 2 != 0,
+        this.board.getStep() % 2 == 0
+      );
 
       this.activeChessFigure?.onSelect()?.forEach((el) => {
         console.log(el.cell === firstIntersection);
@@ -300,6 +305,7 @@ export class Game {
           // console.log("обновление доски ", data);
 
           this.board.restoreFigures(data.chessArr);
+          this.board.setStep(data.stepNumber);
           this.render();
         });
     }, 1000 / 2);

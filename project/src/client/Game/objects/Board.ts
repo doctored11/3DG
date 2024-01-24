@@ -262,6 +262,9 @@ export class Board {
   public getStep(): number {
     return this.step;
   }
+  public setStep(newStep: number) {
+    this.step = newStep;
+  }
   public getCellById(id: number): Cell | undefined {
     for (const row of this.cells) {
       const foundCell = row.find((cell) => cell.getId() == id);
