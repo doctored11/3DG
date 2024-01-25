@@ -14,7 +14,7 @@ class Connector {
     this.server = server;
 
     this.app = app;
-    this.setupRoutes();
+    // this.setupRoutes();
   }
 
   setupRoutes() {
@@ -70,10 +70,12 @@ class Connector {
       }
 
       res.status(200).send(`Board ${boardId} updated successfully`);
+      //return;
     } else {
       res.status(404).send(`Board ${boardId} not found`);
+      //return;
     }
-    console.log(this.boards);
+    // console.log(this.boards);
   }
 
   handleEnvBoard(req: express.Request, res: express.Response) {
@@ -96,8 +98,10 @@ class Connector {
       board.setEnviromentArr(envArr);
 
       res.status(200).send(`Board ${boardId} updated successfully`);
+      //return;
     } else {
       res.status(404).send(`Board ${boardId} not found`);
+      //return;
     }
     console.log(this.boards);
   }
@@ -105,6 +109,7 @@ class Connector {
   handleHomePage(req: express.Request, res: express.Response) {
     const content = "";
     res.send(indexTemplate(content));
+    //return;
   }
 
   handleCreateBoard(
@@ -124,6 +129,7 @@ class Connector {
     console.log(`доска с id инициализация ${newBoardId}`);
     console.log(this.boards);
     res.json({ boardId: newBoardId });
+    //return
   }
   handleGetBoard(req: express.Request, res: express.Response) {
     const boardId = req.params.boardId;
@@ -134,18 +140,20 @@ class Connector {
       // console.log(board);
       const players = board.getPlayers();
       const stepNumber = board.getStep();
-      console.log("отдаем : ", {
-        // chessArr: chessArr,
-        players: players,
-        stepNumber: stepNumber,
-      });
+      // console.log("отдаем : ", {
+      //   // chessArr: chessArr,
+      //   players: players,
+      //   stepNumber: stepNumber,
+      // });
       res.json({
         chessArr: chessArr,
         players: players,
         stepNumber: stepNumber,
       });
+      //return
     } else {
       res.status(404).send(`Board ${boardId} not found`);
+      //return;
     }
   }
 
@@ -158,17 +166,21 @@ class Connector {
       // console.log(board);
 
       res.json({ chessArr: envArr });
+      //return
     } else {
       res.status(404).send(`Board ${boardId} not found`);
+      //return;
     }
   }
 
   handleGetBoardKeys(req: express.Request, res: express.Response) {
     const boardKeys = Array.from(this.boards.keys());
     res.json(boardKeys);
+    //return
   }
 
   start() {
+    this.setupRoutes();
     const PORT = process.env.PORT || 3000;
     this.server.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
@@ -184,8 +196,8 @@ function arraysAreEqual(arr1: ChessData[], arr2: ChessData[]) {
     });
 
   console.log("________________");
-  console.log(arr1, "\n\n____9_9_____\n\n");
-  console.log(arr2, "0___0");
+  // console.log(arr1, "\n\n____9_9_____\n\n");
+  // console.log(arr2, "0___0");
   console.log("массивы равны :", isEqual);
 
   return isEqual;

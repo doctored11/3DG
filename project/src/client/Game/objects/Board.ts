@@ -58,7 +58,7 @@ export class Board {
         this.camera,
         this,
         this.cells[i][1],
-        Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
+        0xff6600, //простите если сломал (но мне нужен цвет на этом этапе)
         1
       );
       this.chesses.push(pawn);
@@ -69,7 +69,7 @@ export class Board {
         this.camera,
         this,
         this.cells[j][0],
-        Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
+        0xff6600, //простите если сломал (но мне нужен цвет на этом этапе)
         1
       );
       this.chesses.push(bishop);
@@ -80,7 +80,7 @@ export class Board {
         this.camera,
         this,
         this.cells[i][this.sizeY - 1],
-        Math.round((Math.random() * 0xffffff) / 8), //простите если сломал (но мне нужен цвет на этом этапе)
+        0x0066ff, //простите если сломал (но мне нужен цвет на этом этапе)
         0
       );
       this.chesses.push(pawn);
@@ -91,7 +91,7 @@ export class Board {
         this.camera,
         this,
         this.cells[j][this.sizeY - 1],
-        Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
+        0x0066ff, //простите если сломал (но мне нужен цвет на этом этапе)
         0
       );
       this.chesses.push(bishop);
@@ -102,7 +102,7 @@ export class Board {
         this.camera,
         this,
         this.cells[z][0],
-        Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
+        0xff6600, //простите если сломал (но мне нужен цвет на этом этапе)
         1
       );
       this.chesses.push(root);
@@ -113,7 +113,7 @@ export class Board {
         this.camera,
         this,
         this.cells[z][this.sizeY - 1],
-        Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
+        0x0066ff, //простите если сломал (но мне нужен цвет на этом этапе)
         0
       );
       this.chesses.push(root);
@@ -124,7 +124,7 @@ export class Board {
         this.camera,
         this,
         this.cells[v][0],
-        Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
+        0xff6600, //простите если сломал (но мне нужен цвет на этом этапе)
         1
       );
       this.chesses.push(knight);
@@ -134,7 +134,7 @@ export class Board {
       this.camera,
       this,
       this.cells[3][0],
-      Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
+      0xff6600, //простите если сломал (но мне нужен цвет на этом этапе)
       1
     );
     this.chesses.push(queen);
@@ -144,7 +144,7 @@ export class Board {
       this.camera,
       this,
       this.cells[4][0],
-      Math.round(Math.random() * 0xffffff * 0.4) + 0xffffff * 0.6, //простите если сломал (но мне нужен цвет на этом этапе)
+      0xff6600, //простите если сломал (но мне нужен цвет на этом этапе)
       1
     );
     this.chesses.push(king);
@@ -262,7 +262,7 @@ export class Board {
 
   public restoreEnv(arr: EnvData[]): void {
     const currentEnv = [...this.getEnviroment()];
-    console.log("Восстанавливаем ПРИРОДУ ", arr)
+    // console.log("Восстанавливаем ПРИРОДУ ", arr)
 
     if (arr.length < 1) return;
 

@@ -81,6 +81,15 @@ export class Game {
         }),
       });
     }
+    let plCount = 0;
+    // setTimeout(() => {
+    fetch(`/get-enviroment/${this.boardId}`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("обновление доски ", data);
+
+        this.board.restoreEnv(data.chessArr);
+      });
 
     fetch(`/get-board/${this.boardId}`)
       .then((response) => response.json())
@@ -116,25 +125,24 @@ export class Game {
           this.playerCamera.lookAt(new THREE.Vector3(37, 38, 5));
         }
         //
-
+        plCount = Object.keys(data.players).length;
         this.onGameStateUpdateCallback({
           step: this.board.getStep(),
           playingSide: this.player.getPlayingSide(),
         });
-        console.log(data.players, "получил ", this.player.getId());
+        console.log(data.players, "получил ", this.player.getId(), plCount);
         this.render();
+        if (plCount < 2) {
+          setTimeout(() => {
+            this.setupEventHandlers();
+          }, (2 * 1000) / FREQUENCY_UPDATE);
+          return;
+        }
+
+        this.getLoop();
       });
-
-    fetch(`/get-enviroment/${this.boardId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("обновление доски ", data);
-
-        this.board.restoreEnv(data.chessArr);
-      });
-
-    this.render();
-    this.getLoop();
+    // }, 100);
+    // this.render();
   }
 
   private onNewEvent(result: string, eventKey?: any) {
@@ -228,9 +236,9 @@ export class Game {
       return distanceA - distanceB;
     });
 
-    const firstIntersection = intersectionsArray[0];
+    let firstIntersection = intersectionsArray[0];
 
-    const cellsToSHighlight:
+    let cellsToSHighlight:
       | { cell: Cell; action: "move" | "attack" }[]
       | null = firstIntersection.onSelect();
 
@@ -239,7 +247,10 @@ export class Game {
     console.log(this.activeChessFigure);
 
     // console.log(this.activeCell)
-    if (firstIntersection instanceof ChessPiece) {
+    if (
+      firstIntersection instanceof ChessPiece &&
+      firstIntersection.getTeamId() == this.player.getPlayingSide()
+    ) {
       this.cellColorOf();
       this.activeChessFigure = firstIntersection;
       console.log("Выбрана основная фигура!");
@@ -255,9 +266,13 @@ export class Game {
         this.player.getPlayingSide()
       );
     } else if (
-      firstIntersection instanceof Cell &&
-      firstIntersection.getHighlightStatus()
+      (firstIntersection instanceof Cell &&
+        firstIntersection.getHighlightStatus()) ||
+      (firstIntersection instanceof ChessPiece &&
+        firstIntersection.getTeamId() != this.player.getPlayingSide())
     ) {
+      if (firstIntersection instanceof ChessPiece)
+        firstIntersection = firstIntersection.getCell();
       // console.log("Возможен Мув!");
       // console.log(this.activeChessFigure || "а где?");
       // console.log(cellsToSHighlight || "нет выделенных клеток для действий");
@@ -299,13 +314,14 @@ export class Game {
             );
             //да - как то получилось 2 массива из которых надо удалять ( массив на клики и массив на отрисовку)
             this.board.removeChess(chess);
-            this.activeChessFigure?.move(firstIntersection);
+            this.activeChessFigure?.move(firstIntersection as Cell);
+            cellsToSHighlight= null;
           }
         });
       }
 
       if (action == "move" && canMoveIt) {
-        this.activeChessFigure?.move(firstIntersection);
+        this.activeChessFigure?.move(firstIntersection as Cell);
       }
       if (canMoveIt) this.board.nextStep();
 
@@ -362,13 +378,12 @@ export class Game {
 
           this.board.restoreFigures(data.chessArr);
           this.board.setStep(data.stepNumber);
-          this.render();
         });
 
       fetch(`/get-enviroment/${this.boardId}`) //потом на этом сэкономить
         .then((response) => response.json())
         .then((data) => {
-          console.log("обновление доски ", data);
+          // console.log("обновление доски ", data);
 
           this.board.restoreEnv(data.chessArr);
         });
@@ -377,6 +392,8 @@ export class Game {
         step: this.board.getStep(),
         playingSide: this.player.getPlayingSide(),
       });
+
+      this.render();
     }, 1000 / FREQUENCY_UPDATE);
   }
 

@@ -10,11 +10,16 @@ const Connector = require("./logic/Connector").default;
 
 
 const app = express();
-// const server = http.createServer(app);
-// const io = socketIO(server);
+const cors = require('cors');
 
 
 
+const corsOptions = {
+  origin: 'http://192.168.0.15:3000', 
+  optionsSuccessStatus: 200, 
+};
+
+app.use(cors());
 
 
 
