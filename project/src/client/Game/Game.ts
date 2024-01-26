@@ -59,6 +59,7 @@ export class Game {
 
     console.log({ chessArr: chessArr, playerId: plId });
     if (this.player.getCurrentGameId() == this.boardId) {
+      console.log("ожидаю 1-2-3-4");
       console.log("ИГРОК УЧАСТНИК!");
       fetch(`/update-board/${this.boardId}`, {
         method: "POST",
@@ -69,6 +70,8 @@ export class Game {
           chessArr: chessArr,
           playerId: plId,
         }),
+      }).then(() => {
+        console.log("отправил 1");
       });
 
       fetch(`/update-env/${this.boardId}`, {
@@ -79,21 +82,33 @@ export class Game {
         body: JSON.stringify({
           envArr: envArr,
         }),
+      }).then(() => {
+        console.log("отправил 2");
       });
     }
     let plCount = 0;
     // setTimeout(() => {
     fetch(`/get-enviroment/${this.boardId}`)
-      .then((response) => response.json())
+      .then((response) => {
+        console.log("Получаю 3");
+        return response.json();
+      })
       .then((data) => {
+        console.log("Получил 3");
+
         console.log("обновление доски ", data);
 
         this.board.restoreEnv(data.chessArr);
       });
 
     fetch(`/get-board/${this.boardId}`)
-      .then((response) => response.json())
+      .then((response) => {
+        console.log("Получаю 4");
+        return response.json();
+      })
       .then((data) => {
+        console.log("Получил 4");
+
         console.log("обновление доски ", data);
 
         this.board.restoreFigures(data.chessArr);
@@ -238,9 +253,8 @@ export class Game {
 
     let firstIntersection = intersectionsArray[0];
 
-    let cellsToSHighlight:
-      | { cell: Cell; action: "move" | "attack" }[]
-      | null = firstIntersection.onSelect();
+    let cellsToSHighlight: { cell: Cell; action: "move" | "attack" }[] | null =
+      firstIntersection.onSelect();
 
     //Зачаток к логике передвижения
     console.log("Готовность двигаться!");
@@ -315,7 +329,7 @@ export class Game {
             //да - как то получилось 2 массива из которых надо удалять ( массив на клики и массив на отрисовку)
             this.board.removeChess(chess);
             this.activeChessFigure?.move(firstIntersection as Cell);
-            cellsToSHighlight= null;
+            cellsToSHighlight = null;
           }
         });
       }
