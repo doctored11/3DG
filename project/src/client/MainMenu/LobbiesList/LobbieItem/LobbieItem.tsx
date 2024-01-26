@@ -1,21 +1,34 @@
-import React from 'react';
+// В LobbieItem
+import React from "react";
 
 interface LobbieItemProps {
-  id: string;
-  onConnectToLobby: (data: { id: string, status: string }) => void;
+  board: { boardId: string; players: Record<string, number> };
+  playerNicknames: String[];
+  onConnectToLobby: (data: { id: string; status: string }) => void;
 }
 
-const LobbieItem: React.FC<LobbieItemProps> = ({ id, onConnectToLobby }) => {
+const LobbieItem: React.FC<LobbieItemProps> = ({ board, playerNicknames,onConnectToLobby }) => {
+  const id = board.boardId;
+
   const handleConnect = (status: string) => {
-    console.log(`Подключение/просмотр лобби с id ${id} и статусом ${status}`);
+    console.log(
+      `Подключение/просмотр лобби со статусом ${status}: доска ${JSON.stringify(
+        board.boardId,
+      )}`
+    );
+    // console.log(playerNicknames,"НИКИ")
+    const id = board.boardId;
     onConnectToLobby({ id, status });
   };
 
+  
+
   return (
     <div>
-      <p id={id}>{id}</p>
-      <button onClick={() => handleConnect('play')}>Подключиться</button>
-      <button onClick={() => handleConnect('view')}>Просмотр</button>
+      <p>ID: {id}</p>
+      <p>Players: {playerNicknames}</p>
+      <button onClick={() => handleConnect("play")}>Подключиться</button>
+      <button onClick={() => handleConnect("view")}>Просмотр</button>
     </div>
   );
 };

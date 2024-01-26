@@ -6,11 +6,13 @@ import { indexTemplate } from "../indexTemplate";
 
 class Connector {
   boards: Map<string, Board>;
+  players: Map<string, string>;
   server: http.Server;
   app: any;
 
   constructor(app: any, server: http.Server) {
     this.boards = new Map<string, Board>();
+    this.players = new Map<string, string>();
     this.server = server;
 
     this.app = app;
@@ -28,6 +30,16 @@ class Connector {
     this.app.get("/get-board/:boardId", this.handleGetBoard.bind(this));
     this.app.get("/get-enviroment/:boardId", this.handleGetEnv.bind(this));
     this.app.get("/get-board-keys", this.handleGetBoardKeys.bind(this));
+    this.app.get("/get-all-boards", this.handleGetAllBoards.bind(this));
+
+
+    this.app.post("/add-player", this.handleAddPlayer.bind(this));
+    this.app.delete(
+      "/remove-player/:playerId",
+      this.handleRemovePlayer.bind(this)
+    );
+    this.app.get("/get-player/:playerId", this.handleGetPlayer.bind(this));
+    this.app.get("/get-all-players", this.handleGetAllPlayers.bind(this));
 
     this.app.post(
       "/create-board",
@@ -179,6 +191,63 @@ class Connector {
     //return
   }
 
+
+  handleAddPlayer(req: express.Request, res: express.Response) {
+    const playerId = req.body.playerId;
+    const playerName = req.body.playerName;
+
+    if (!playerId || !playerName) {
+      res.status(400).send('Invalid request. Player ID and Name are required.');
+      return;
+    }
+
+    this.players.set(playerId, playerName);
+    res.status(200).send(`Player ${playerId} added successfully`);
+  }
+
+  // запросы игроков
+  handleRemovePlayer(req: express.Request, res: express.Response) {
+    const playerId = req.params.playerId;
+
+    if (!this.players.has(playerId)) {
+      res.status(404).send(`Player ${playerId} not found`);
+      return;
+    }
+
+    this.players.delete(playerId);
+    res.status(200).send(`Player ${playerId} removed successfully`);
+  }
+
+
+  handleGetPlayer(req: express.Request, res: express.Response) {
+    const playerId = req.params.playerId;
+
+    if (!this.players.has(playerId)) {
+      res.status(404).send(`Player ${playerId} not found`);
+      return;
+    }
+
+    const playerName = this.players.get(playerId);
+    res.status(200).json({ playerId, playerName });
+  }
+
+  handleGetAllPlayers(req: express.Request, res: express.Response) {
+   
+    const allPlayers = Array.from(this.players.entries()).map(([playerId, playerName]) => ({ playerId, playerName }));
+    console.log("отдаю игроков", allPlayers)
+    res.status(200).json(allPlayers);
+  }
+  // 
+  handleGetAllBoards(req: express.Request, res: express.Response) {
+    const allBoardsInfo = Array.from(this.boards.entries()).map(([boardId, board]) => ({
+      boardId,
+      players: board.getPlayers(),
+    }));
+
+    res.status(200).json(allBoardsInfo);
+  }
+
+// 
   start() {
     this.setupRoutes();
     const PORT = process.env.PORT || 3000;

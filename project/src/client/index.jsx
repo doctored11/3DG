@@ -24,7 +24,25 @@ function App() {
 
   function handleNicknameConfirm() {
     console.log("Никнейм :", playerNickname);
+    player.setNickname(playerNickname);
   }
+  const handleConfirm = (nickname) => {
+    console.log("ваш никчемный ник: " + nickname);
+
+    setPlayerNickname(nickname);
+    player.setNickname(nickname);
+
+    fetch("/add-player", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        playerId: player.getId(),
+        playerName: nickname,
+      }),
+    });
+  };
 
   React.useEffect(() => {
     console.log(gameId);
@@ -38,11 +56,6 @@ function App() {
       setGameState(data);
     });
   }, [gameId]);
-
-  const handleConfirm = (nickname) => {
-    console.log("ваш никчемный ник: " + nickname);
-    setPlayerNickname(nickname);
-  };
 
   const handleButtonClick = (id) => {
     console.log(`Кнопка с id ${id} кликнута `);

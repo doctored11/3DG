@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import LobbiesList from "./LobbiesList/LobbiesList";
+
 import Player from "../Player/Player";
 import styles from "./mainMune.css";
+import LobbiesList from "./LobbiesList/LobbiesList";
 
 interface MainMenuProps {
   onButtonClick: (id: string) => void;
@@ -13,33 +14,41 @@ interface LobbyItemClickData {
   status: string;
 }
 
+interface LobbyData {
+  boardId: string;
+  players: Record<string, number>;
+}
+
 export const MainMenu: React.FC<MainMenuProps> = ({
   onButtonClick,
   onLobbyItemClick,
   clientPlayer,
 }) => {
+  console.log("MainMenu");
   const [name, setName] = useState("");
-  const [boardKeys, setBoardKeys] = useState<string[]>([]);
+  const [boards, setBoards] = useState<LobbyData[]>([]);
   const player = clientPlayer;
-  console.log(player, "MM");
+  // console.log(player, "MM");
 
   useEffect(() => {
-    fetchBoardKeys();
-  }, []);
+    const fetchBoards = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/get-all-boards");
+        const data: [] = await response.json();
 
-  const fetchBoardKeys = async () => {
-    try {
-      const response = await fetch("http://localhost:3000/get-board-keys");
-      const data: [] = await response.json();
-      console.log("Data с сервера:", data);
-
-      if (data && data.length > 0) {
-        setBoardKeys(data);
+        if (data && data.length > 0) {
+          setBoards(data);
+        }
+      } catch (error) {
+        console.error("Ошибка при получении списка ID досок:", error);
       }
-    } catch (error: any) {
-      console.error("Ошибка при получении списка ID досок:", error.message);
-    }
-  };
+    };
+
+    fetchBoards();
+
+    const intervalId = setInterval(fetchBoards, 3000);
+    return () => clearInterval(intervalId);
+  }, []);
   const handleButtonClick = () => {
     const gameId = Math.random() * 1000 + "_" + Date.now() + "cb";
     fetch("/create-board", {
@@ -48,8 +57,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ boardId: gameId, playersId: [player.getId()] }),
-    }).then((response) => {
-      response.json();
+    }).then(async (response) => {
+      console.log(gameId);
+      await response.json();
       onButtonClick(gameId);
     });
   };
@@ -65,7 +75,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({
       <div className={styles.frame}>
         <div className={styles.head}>
           <p className={styles.nickName}>{name}</p>
-          
+
           <button
             className={styles.createGame}
             id="create"
@@ -74,9 +84,12 @@ export const MainMenu: React.FC<MainMenuProps> = ({
             Создать катку
           </button>
 
-          {boardKeys && boardKeys.length > 0 && (
+          {boards && boards.length > 0 && (
             <LobbiesList
-              lobbyIds={boardKeys}
+              key={`lobbies-list-${
+                Math.random() * 1555 + 2 + "_" + Date.now()
+              }`}
+              lobbies={boards}
               onLobbyItemClick={handleLobbyItemClick}
             />
           )}
@@ -85,4 +98,3 @@ export const MainMenu: React.FC<MainMenuProps> = ({
     </div>
   );
 };
-

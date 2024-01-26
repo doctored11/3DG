@@ -382,15 +382,21 @@ export class Game {
   public onBoardUpdate(callback: (chessArr: ChessData[]) => void) {
     this.onBoardUpdateCallback = callback;
   }
-
+  public oldFigures: [] | null = null;
   private getLoop(): void {
     setInterval(() => {
       fetch(`/get-board/${this.boardId}`)
         .then((response) => response.json())
         .then((data) => {
-          // console.log("обновление доски ", data);
+          
+          if (!this.areArraysEqual(this.oldFigures || [], data.chessArr)) {
+            
+            // Если массивы разные, восстанавливаем фигуры (проверка по объектам тяжелая но пока пойдет)
+            this.cellColorOf() 
+            this.board.restoreFigures(data.chessArr);
+            this.oldFigures = data.chessArr;
+          }
 
-          this.board.restoreFigures(data.chessArr);
           this.board.setStep(data.stepNumber);
         });
 
@@ -410,7 +416,36 @@ export class Game {
       this.render();
     }, 1000 / FREQUENCY_UPDATE);
   }
-
+  private areArraysEqual(arr1: any[], arr2: any[]): boolean {
+    if (arr1.length !== arr2.length) {
+      return false;
+    }
+  
+    for (let i = 0; i < arr1.length; i++) {
+      if (!this.areObjectsEqual(arr1[i], arr2[i])) {
+        return false;
+      }
+    }
+  
+    return true;
+  }
+  
+  private areObjectsEqual(obj1: any, obj2: any): boolean {
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+  
+    if (keys1.length !== keys2.length) {
+      return false;
+    }
+  
+    for (let key of keys1) {
+      if (obj1[key] !== obj2[key]) {
+        return false;
+      }
+    }
+  
+    return true;
+  }
   cellColorOf() {
     this.activeChessFigure = null;
 

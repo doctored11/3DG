@@ -2,6 +2,7 @@ export default class Player {
   private id: string;
   private isPlaying: boolean;
   private playingSide: number;
+  private nickname: string;
   private currentGameId: 0 | 1 | null;
 
   constructor(id: string) {
@@ -9,6 +10,7 @@ export default class Player {
     this.isPlaying = false;
     this.playingSide = -1;
     this.currentGameId = null;
+    this.nickname = "Игрок"
   }
 
   getIsPlaying(): boolean {
@@ -36,5 +38,11 @@ export default class Player {
 
   setCurrentGameId(value: 0 | 1 | null): void {
     this.currentGameId = value;
+  }
+  public setNickname(nick: string): void {
+    this.nickname = nick;
+  }
+  public getNickname(): string {
+    return this.nickname;
   }
 }
