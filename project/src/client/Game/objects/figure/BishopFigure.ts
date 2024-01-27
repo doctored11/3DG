@@ -32,7 +32,7 @@ export class BishopFigure extends ChessPiece{
         this.board = board;
         this.isBigMove = true;
 
-        this.mesh = this.createMesh(this.type, 1,1);//ну это жесткий прикол -_-
+        this.mesh = this.createMesh(this.type, 2.5,2.5);//ну это жесткий прикол -_-
         this.draw()
 
     }

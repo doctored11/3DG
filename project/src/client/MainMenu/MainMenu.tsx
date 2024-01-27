@@ -25,10 +25,13 @@ export const MainMenu: React.FC<MainMenuProps> = ({
   clientPlayer,
 }) => {
   console.log("MainMenu");
-  const [name, setName] = useState("");
+  // const [name, setName] = useState("");
   const [boards, setBoards] = useState<LobbyData[]>([]);
   const player = clientPlayer;
+  // setName(player.getNickname());// почему просто не присвоил - вспомнить зачем заготовка!(или удалить)
   // console.log(player, "MM");
+
+  const name = player.getNickname();
 
   useEffect(() => {
     const fetchBoards = async () => {
@@ -72,28 +75,29 @@ export const MainMenu: React.FC<MainMenuProps> = ({
 
   return (
     <div className={styles.mainMenu}>
-      <div className={styles.frame}>
-        <div className={styles.head}>
+      <div className={styles.head}>
+        <div className={styles.playerBlock}>
+          <div className={styles.playerLogoBlock}>
+            <img src="" alt="" />
+          </div>
           <p className={styles.nickName}>{name}</p>
-
-          <button
-            className={styles.createGame}
-            id="create"
-            onClick={() => handleButtonClick()}
-          >
-            Создать катку
-          </button>
-
-          {boards && boards.length > 0 && (
-            <LobbiesList
-              key={`lobbies-list-${
-                Math.random() * 1555 + 2 + "_" + Date.now()
-              }`}
-              lobbies={boards}
-              onLobbyItemClick={handleLobbyItemClick}
-            />
-          )}
         </div>
+        <button
+          className={styles.createGame}
+          id="create"
+          onClick={() => handleButtonClick()}
+        >
+          Создать катку
+        </button>
+      </div>
+      <div className={styles.frame}>
+        {boards && boards.length > 0 && (
+          <LobbiesList
+            key={`lobbies-list-${Math.random() * 1555 + 2 + "_" + Date.now()}`}
+            lobbies={boards}
+            onLobbyItemClick={handleLobbyItemClick}
+          />
+        )}
       </div>
     </div>
   );

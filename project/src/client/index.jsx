@@ -74,7 +74,7 @@ function App() {
     <div>
       {!gameId && (
         <>
-          {!playerNickname && <MainEntrance onConfirm={handleConfirm} />}
+          {!playerNickname && <MainEntrance  onConfirm={handleConfirm} />}
           {playerNickname && (
             <MainMenu
               onButtonClick={handleButtonClick}

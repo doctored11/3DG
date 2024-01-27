@@ -24,7 +24,7 @@ export class ChessPiece extends Figure {
   ) {
     super(scene, camera, color);
     this.cell = cell;
-    this.mesh = this.createMesh("PawnFigure", 1,1);
+    this.mesh = this.createMesh("PawnFigure", 2.5,2.5);
     this.board = board;
     this.id = id || Math.round(Math.random() * 8000) + 1;
     this.draw();

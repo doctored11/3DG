@@ -34,7 +34,7 @@ export class PawnFigure extends ChessPiece {
 
     this.scene = scene;
 
-    this.mesh = this.createMesh(this.type, 1,1);
+    this.mesh = this.createMesh(this.type, 2.5,2.5);
 
     this.draw();
   }

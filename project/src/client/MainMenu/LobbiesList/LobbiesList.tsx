@@ -1,6 +1,7 @@
 // В LobbiesList
 import React, { useEffect, useState } from "react";
 import LobbieItem from "./LobbieItem/LobbieItem";
+import style from "./lobbiesList.css";
 
 interface LobbyItem {
   boardId: string;
@@ -21,7 +22,7 @@ const LobbiesList: React.FC<LobbiesListProps> = ({
   lobbies,
   onLobbyItemClick,
 }) => {
-  console.log("LIST")
+  console.log("LIST");
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const LobbiesList: React.FC<LobbiesListProps> = ({
         console.error("Ошибка при получении игроков:", error);
       }
     };
-  
+
     fetchPlayers();
   }, []);
   // useEffect(() => {
@@ -48,21 +49,20 @@ const LobbiesList: React.FC<LobbiesListProps> = ({
       // console.log("перебор", allPlayers);
       const player = allPlayers.find((pl) => pl.playerId == playerId);
 
-     
       return player ? player.playerName : `Супер шахматист (${playerId})`;
     });
   };
 
   return (
-    <div>
+    <div className={style.list}>
       {lobbies.map((data) => {
-        
         const playerNicknames: string[] = getPlayerNicknames(
           Object.keys(data.players)
         );
 
         return (
           <LobbieItem
+            key={Math.random() + "_" + Date.now() + "_!"}
             board={data}
             playerNicknames={playerNicknames}
             onConnectToLobby={onLobbyItemClick}

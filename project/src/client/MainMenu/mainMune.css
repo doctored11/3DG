@@ -1,18 +1,30 @@
+@font-face {
+  font-family: "Avengean";
+  src: url(../res/fonts/AVENGEANCE_MIGHTIEST_AVENGER_RUS_0.ttf);
+}
+
 .frame {
   padding: 0 10%;
 }
-.head {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  padding: 10% 0;
+
+:root {
+  --main-dark: #071a52;
+  --main-light: #086972;
+  --accent-color: #a7ff83;
+  --accent-second-color: #17b978;
+  --light-color: #fff;
+  --border-transparent-color: rgba(29, 29, 27, 0.15);
+  --border-rad: 10px;
 }
 
 .createGame {
-  background-color: #ffa500;
-  color: #fff;
+  background-color: var(--accent-color);
+
+  font-family: "Avengean", sans-serif;
   border: none;
+  box-shadow: 0px 6px 0px 0px var(--accent-second-color);
+  color: #fff;
+
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
@@ -21,5 +33,88 @@
 }
 
 .createGame:hover {
-  background-color: #ff8c00;
+  background-color: #8ae965;
+
+  translate: background-color 0.2s ease;
+}
+.createGame:active {
+  background-color: #8ae965;
+
+  margin: 4px 0 2px;
+  box-shadow: 0px 2px 0px 0px var(--accent-second-color);
+}
+.mainMenu {
+  z-index: 0;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+
+  background: repeating-conic-gradient(
+    var(--main-dark) 0 15deg,
+    var(--main-light) 15deg 30deg
+  );
+}
+.mainMenu::before {
+  z-index: 0;
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at center,
+    var(--main-light) 0%,
+    var(--main-light) 25%,
+    transparent 100%
+  );
+}
+.frame {
+  width: 100vw;
+  height: 100%;
+  z-index: 3;
+  padding: 0 10%;
+  display: flex;
+  overflow: hidden;
+  padding-top: 5%;
+  padding-bottom: 3%;
+  /* align-items: center; */
+  justify-content: center;
+}
+.head {
+  width: 100vw;
+  z-index: 4;
+  padding: 30px 7%;
+  border-radius: 0 0 var(--border-rad) var(--border-rad);
+  border-bottom: solid 3px var(--border-transparent-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.playerLogoBlock {
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  border: 4px solid var(--light-color);
+  margin-right: 5px;
+}
+.nickName {
+  font-family: "Avengean", sans-serif;
+  font-size: 18px;
+  color: rgb(255, 255, 255);
+  text-align: center;
+  line-height: 19px;
+  padding: 0;
+  margin: 0;
+}
+
+.playerBlock {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  align-items: end;
+  margin-right: 20px;
 }

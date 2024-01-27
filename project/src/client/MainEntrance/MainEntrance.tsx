@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import * as THREE from "three";
 import styles from "./mainEntrance.css";
-import skyTexture from "../res/sky5.png"; 
+import skyTexture from "../res/vectorBack.png"; 
 
 
 interface MainEntranceProps {
@@ -24,37 +24,43 @@ export const MainEntrance = ({ onConfirm }: MainEntranceProps) => {
 
     const textureLoader = new THREE.TextureLoader ();
     const texture = textureLoader.load(skyTexture); 
+    
 
-    // Создание материала с текстурой
     const materialSky = new THREE.MeshBasicMaterial({
       map: texture,
       side: THREE.BackSide,
+
+     
     });
 
-    // Создание сферы
-    const geometrySky = new THREE.SphereGeometry(5); // Регулируйте параметры по необходимости
+    const geometrySky = new THREE.SphereGeometry(10);
 
-    // Создание mesh с материалом и геометрией
     const skybox = new THREE.Mesh(geometrySky, materialSky);
 
-    // Добавление skybox к сцене
     scene.add(skybox);
+    // scene.background = new THREE.Color(0x086972);
 
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshPhongMaterial({ color: 0xaa4499 });
+    const geometry = new THREE.BoxGeometry(2,2,2);
+    const material = new THREE.MeshPhongMaterial({ color: 0xffffff });
     const cube = new THREE.Mesh(geometry, material);
     cube.rotation.x = 10;
 
     scene.add(cube);
 
     const light = new THREE.PointLight(0xffffff);
-    light.position.set(0, 2, 1);
-    light.intensity = 10;
+    light.position.set(3, 3, 5);
+    light.intensity = 15;
     scene.add(light);
 
-    const light2 = new THREE.PointLight(0xffffff);
-    light2.position.set(0, -1, 2);
-    light2.intensity = 2;
+
+    const light3 = new THREE.PointLight(0xa7ff83);
+    light3.position.set(-2, 2, 3);
+    light3.intensity = 20;
+    scene.add(light3);
+
+    const light2 = new THREE.PointLight(0x086972);
+    light2.position.set(1, -2, 2);
+    light2.intensity = 5;
     scene.add(light2);
 
     camera.position.z = 5;
@@ -121,7 +127,7 @@ export const MainEntrance = ({ onConfirm }: MainEntranceProps) => {
     <div className={styles.mainEntranceBlock}>
       <div className={styles.frame}>
         <div className={styles.form}>
-          <label htmlFor="nickname">Вводи ник:</label>
+          <label htmlFor="nickname" className={styles.txt}>Вводи ник:</label>
           <div className={styles.inputBlock}>
           <input
             type="text"

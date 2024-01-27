@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "Avengean";
+  src: url(../res/fonts/AVENGEANCE_MIGHTIEST_AVENGER_RUS_0.ttf);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -33,10 +38,11 @@
 .form {
   position: absolute;
   display: flex;
-  bottom: 35%;
+  bottom: 15%;
   left: 50%;
   transform: translate(-50%, 20%);
-  background-color: #ffffff65;
+  background-color: var(--main-dark);
+  border: 6px solid var(--light-color);
   flex-direction: column;
   padding: 2% 5%;
   border-radius: 25px;
@@ -52,19 +58,35 @@
   height: 100%;
   margin: 0;
   padding: 10px 0 10px 10px;
-  border-radius: 10px 0 0 10px;
+  border-radius: var(--border-rad) 0 0 var(--border-rad);
   border: none;
   background-color: #ffffffb0;
+  font-family: "Avengean", sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--main-dark);
 }
 
 .btn {
-  border-radius: 0 10px 10px 0px;
-  background-color: aquamarine;
+  background-color: var(--accent-color);
   height: 100%;
-  margin: 0;
-  padding: 10px 10px 10px 5px;
+
+  font-family: "Avengean", sans-serif;
+  border: none;
+  /* box-shadow: 0px 6px 0px 0px var(--accent-second-color); */
+  color: #fff;
+
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 0 var(--border-rad) var(--border-rad) 0;
+  transition: background-color 0.3s;
+}
+.txt {
+  display: inline-block;
+  font-family: "Avengean", sans-serif;
   border: none;
   color: #fff;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 1rem;
 }
