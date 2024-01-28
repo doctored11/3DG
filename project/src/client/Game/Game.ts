@@ -208,7 +208,7 @@ export class Game {
     // TODO разбить мутанта этого ()
     if (!this.isPlayer()) return;
     let canMoveIt = false;
-
+    let wasMove = false
     const pointer = new THREE.Vector2();
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = (-event.clientY / window.innerHeight) * 2 + 1;
@@ -226,7 +226,6 @@ export class Game {
       }
     }
     for (const figure of this.board.getFlatCells()) {
-    
       const intersections = this.raycaster.intersectObjects([figure.mesh]);
       if (
         intersections.length > 0 &&
@@ -319,16 +318,18 @@ export class Game {
             console.log(
               "АААA он убит! -> " + JSON.stringify(chess.getPosition())
             );
-            //да - как то получилось 2 массива из которых надо удалять ( массив на клики и массив на отрисовку)
+           
             this.board.removeChess(chess);
             this.activeChessFigure?.move(firstIntersection as Cell);
             cellsToSHighlight = null;
+            wasMove=true
           }
         });
       }
 
       if (action == "move" && canMoveIt) {
         this.activeChessFigure?.move(firstIntersection as Cell);
+        wasMove=true
       }
       if (canMoveIt) this.board.nextStep();
 
@@ -338,13 +339,8 @@ export class Game {
     }
 
     // console.log(cellsToSHighlight);
-    console.log("ТУТ ПОПЫКТКА ОТПРАВИТЬ");
     const chessArr = this.board.getChessToSend();
-    console.log(chessArr);
-    //тут надо отправлять доску на сервер
-    // this.socket.emit("board update", chessArr);
     this.onBoardUpdateCallback(chessArr);
-
     console.log("Перед покраской ", canMoveIt);
     cellsToSHighlight?.forEach((el) => {
       el.cell.setHighlight(
@@ -358,15 +354,21 @@ export class Game {
           : 0x560155
       );
     });
+    if (wasMove) {
+      console.log("ТУТ ПОПЫКТКА ОТПРАВИТЬ");
+      console.log(chessArr);
+      //тут надо отправлять доску на сервер
+      // this.socket.emit("board update", chessArr);
+    
 
-    fetch(`/update-board/${this.boardId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ chessArr }),
-    });
-
+      fetch(`/update-board/${this.boardId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ chessArr }),
+      });
+    }
     this.render();
   }
 

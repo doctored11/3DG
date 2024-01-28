@@ -13,9 +13,19 @@ const HUD: React.FC<HUDProps> = ({ step, playingSide }) => {
 
   return (
     <div className={style.mainHud}>
-      <p>Ход: {step}</p>
-      <p>Сторона игрока: {playingSide === 1 ? "Белые" : "Черные"}</p>
-      {isYourTurn && <p>Ваш ход</p>}
+      <div
+        className={`${style.stepBlock} ${
+          isYourTurn ? style.yourStep : style.notYourStep
+        }`}
+      >
+        <p className={style.txt}>Ход: {step}</p>
+        {isYourTurn && <p className={style.ternLabel}>Ваш ход</p>}
+      </div>
+      <div className={style.playerSideBlock}>
+        <p className={style.txt}>
+          Сторона игрока: {playingSide === 1 ? "Белые" : "Черные"}
+        </p>
+      </div>
     </div>
   );
 };
