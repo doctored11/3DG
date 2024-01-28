@@ -34,6 +34,12 @@ export class Board {
   }
 
   private createBoard(sizeI: number, sizeJ: number): void {
+    this.bordGeneration(sizeI, sizeJ);
+
+    this.ObjectsInit();
+  }
+
+  private bordGeneration(sizeI: number, sizeJ: number) {
     for (let i = 0; i < sizeI; ++i) {
       this.cells[i] = [];
       for (let j = 0; j < sizeJ; ++j) {
@@ -47,12 +53,16 @@ export class Board {
         this.cells[i][j] = cell;
       }
     }
-
-    this.ObjectsInit();
+  }
+  public changeSize(sizeI: number, sizeJ: number){
+    this.sizeX = sizeI;
+    this.sizeY=sizeJ;
+    this.bordGeneration(sizeI,sizeJ)
+   
   }
   private ObjectsInit(): void {
     // тут будет начальная расстановка фигур
-    for (let i = 0; i < this.sizeX; i++) {
+    for (let i = 0; i < 8; i++) {
       const pawn = new PawnFigure(
         this.scene,
         this.camera,
@@ -63,7 +73,7 @@ export class Board {
       );
       this.chesses.push(pawn);
     }
-    for (let j = 2; j < this.sizeX - 1; j += 3) {
+    for (let j = 2; j <8 - 1; j += 3) {
       const bishop = new BishopFigure(
         this.scene,
         this.camera,
@@ -74,29 +84,29 @@ export class Board {
       );
       this.chesses.push(bishop);
     }
-    for (let i = 0; i < this.sizeX; i++) {
+    for (let i = 0; i < 8; i++) {
       const pawn = new PawnFigure(
         this.scene,
         this.camera,
         this,
-        this.cells[i][this.sizeY - 1],
+        this.cells[i][8 - 1],
         0x0066ff, //простите если сломал (но мне нужен цвет на этом этапе)
         0
       );
       this.chesses.push(pawn);
     }
-    for (let j = 2; j < this.sizeX - 1; j += 3) {
+    for (let j = 2; j <8- 1; j += 3) {
       const bishop = new BishopFigure(
         this.scene,
         this.camera,
         this,
-        this.cells[j][this.sizeY - 1],
+        this.cells[j][8- 1],
         0x0066ff, //простите если сломал (но мне нужен цвет на этом этапе)
         0
       );
       this.chesses.push(bishop);
     }
-    for (let z = 0; z < this.sizeX; z += 7) {
+    for (let z = 0; z < 8; z += 7) {
       const root = new RootFigure(
         this.scene,
         this.camera,
@@ -107,18 +117,18 @@ export class Board {
       );
       this.chesses.push(root);
     }
-    for (let z = 0; z < this.sizeX; z += 7) {
+    for (let z = 0; z < 8; z += 7) {
       const root = new RootFigure(
         this.scene,
         this.camera,
         this,
-        this.cells[z][this.sizeY - 1],
+        this.cells[z][8 - 1],
         0x0066ff, //простите если сломал (но мне нужен цвет на этом этапе)
         0
       );
       this.chesses.push(root);
     }
-    for (let v = 1; v < this.sizeX; v += 5) {
+    for (let v = 1; v < 8; v += 5) {
       const knight = new KnightFigure(
         this.scene,
         this.camera,
@@ -153,7 +163,7 @@ export class Board {
       this.scene,
       this.camera,
       this,
-      this.cells[ Math.round(Math.random() * 5)][3],
+      this.cells[Math.round(Math.random() * 5)][3],
       0xaaaaa
     );
     this.environment.push(rock);

@@ -4,14 +4,22 @@ class Board {
   private players: Record<string, number> = {};
   private availableColors: number[] = [0, 1];
   private step: number = 0;
-
-  constructor() {
+  private width: number = 8;
+  private height: number = 8;
+  private envLvl: number = 0;
+  constructor(width: number, height: number, envLvl: number) {
     this.figureArr = [];
     this.players = {};
+    this.width = width;
+    this.height = height;
+    this.envLvl = envLvl;
   }
 
   public figureArrUpdate(data: ChessData[]) {
     this.figureArr = data;
+  }
+  public getSize(): number[] {
+    return [this.width, this.height];
   }
 
   public getFigureArr(): ChessData[] {

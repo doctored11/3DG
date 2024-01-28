@@ -110,6 +110,8 @@ export class Game {
         console.log("Получил 4");
 
         console.log("обновление доски ", data);
+        const [width, height] = data.boardSize;
+        this.board.changeSize(width, height);
 
         this.board.restoreFigures(data.chessArr);
 
@@ -183,15 +185,6 @@ export class Game {
     this.board.render();
 
     const boardCells = this.board.getCells();
-    // console.log("camSide:  _", this.player.getPlayingSide());
-    // if (this.player.getPlayingSide() == 1) {
-    //   this.playerCamera.position.add(new THREE.Vector3(37, 38, 25));
-    //   this.playerCamera.lookAt(new THREE.Vector3(37, 41, 5));
-    // } else {
-    //   this.playerCamera.up.set(0, 0, 1);
-    //   this.playerCamera.position.set(37, 43, 25);
-    //   this.playerCamera.lookAt(new THREE.Vector3(37, 38, 5));
-    // }
 
     this.playerCamera.up.set(0, 0, 1);
     this.playerCamera.position.set(37, 43, 25);
@@ -201,7 +194,7 @@ export class Game {
   }
 
   private render() {
-    console.log("render ", !this.renderer || !this.gameZone);
+    // console.log("render ", !this.renderer || !this.gameZone);
     if (!this.renderer || !this.gameZone) return;
 
     this.scene.clear();
@@ -233,7 +226,7 @@ export class Game {
       }
     }
     for (const figure of this.board.getFlatCells()) {
-      console.log("onCLICK!");
+    
       const intersections = this.raycaster.intersectObjects([figure.mesh]);
       if (
         intersections.length > 0 &&
@@ -388,11 +381,9 @@ export class Game {
       fetch(`/get-board/${this.boardId}`)
         .then((response) => response.json())
         .then((data) => {
-          
           if (!this.areArraysEqual(this.oldFigures || [], data.chessArr)) {
-            
             // Если массивы разные, восстанавливаем фигуры (проверка по объектам тяжелая но пока пойдет)
-            this.cellColorOf() 
+            this.cellColorOf();
             this.board.restoreFigures(data.chessArr);
             this.oldFigures = data.chessArr;
           }
@@ -420,30 +411,30 @@ export class Game {
     if (arr1.length !== arr2.length) {
       return false;
     }
-  
+
     for (let i = 0; i < arr1.length; i++) {
       if (!this.areObjectsEqual(arr1[i], arr2[i])) {
         return false;
       }
     }
-  
+
     return true;
   }
-  
+
   private areObjectsEqual(obj1: any, obj2: any): boolean {
     const keys1 = Object.keys(obj1);
     const keys2 = Object.keys(obj2);
-  
+
     if (keys1.length !== keys2.length) {
       return false;
     }
-  
+
     for (let key of keys1) {
       if (obj1[key] !== obj2[key]) {
         return false;
       }
     }
-  
+
     return true;
   }
   cellColorOf() {

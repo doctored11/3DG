@@ -32,7 +32,6 @@ class Connector {
     this.app.get("/get-board-keys", this.handleGetBoardKeys.bind(this));
     this.app.get("/get-all-boards", this.handleGetAllBoards.bind(this));
 
-
     this.app.post("/add-player", this.handleAddPlayer.bind(this));
     this.app.delete(
       "/remove-player/:playerId",
@@ -46,7 +45,19 @@ class Connector {
       (req: express.Request, res: express.Response) => {
         const boardId = req.body.boardId || -1;
         const playersIds = req.body.playersId || ["-0", "-00"];
-        this.handleCreateBoard(req, res, boardId, playersIds);
+        const width = req.body.width;
+
+        const height = req.body.height;
+        const environmentCount = req.body.environmentCount;
+        this.handleCreateBoard(
+          req,
+          res,
+          boardId,
+          playersIds,
+          width,
+          height,
+          environmentCount
+        );
       }
     );
 
@@ -128,9 +139,12 @@ class Connector {
     req: express.Request,
     res: express.Response,
     boardId: string = "-1",
-    players: string[] = ["-1", "-2"]
+    players: string[] = ["-1", "-2"],
+    height: number = 8,
+    width: number = 8,
+    environmentCount: number = 0
   ) {
-    const newBoard = new Board();
+    const newBoard = new Board(width, height, environmentCount);
     const newBoardId = boardId;
     const playersIds = players;
     playersIds.forEach((pl) => {
@@ -161,6 +175,7 @@ class Connector {
         chessArr: chessArr,
         players: players,
         stepNumber: stepNumber,
+        boardSize: board.getSize(),
       });
       //return
     } else {
@@ -191,13 +206,12 @@ class Connector {
     //return
   }
 
-
   handleAddPlayer(req: express.Request, res: express.Response) {
     const playerId = req.body.playerId;
     const playerName = req.body.playerName;
 
     if (!playerId || !playerName) {
-      res.status(400).send('Invalid request. Player ID and Name are required.');
+      res.status(400).send("Invalid request. Player ID and Name are required.");
       return;
     }
 
@@ -218,7 +232,6 @@ class Connector {
     res.status(200).send(`Player ${playerId} removed successfully`);
   }
 
-
   handleGetPlayer(req: express.Request, res: express.Response) {
     const playerId = req.params.playerId;
 
@@ -232,22 +245,25 @@ class Connector {
   }
 
   handleGetAllPlayers(req: express.Request, res: express.Response) {
-   
-    const allPlayers = Array.from(this.players.entries()).map(([playerId, playerName]) => ({ playerId, playerName }));
-    console.log("отдаю игроков", allPlayers)
+    const allPlayers = Array.from(this.players.entries()).map(
+      ([playerId, playerName]) => ({ playerId, playerName })
+    );
+    console.log("отдаю игроков", allPlayers);
     res.status(200).json(allPlayers);
   }
-  // 
+  //
   handleGetAllBoards(req: express.Request, res: express.Response) {
-    const allBoardsInfo = Array.from(this.boards.entries()).map(([boardId, board]) => ({
-      boardId,
-      players: board.getPlayers(),
-    }));
+    const allBoardsInfo = Array.from(this.boards.entries()).map(
+      ([boardId, board]) => ({
+        boardId,
+        players: board.getPlayers(),
+      })
+    );
 
     res.status(200).json(allBoardsInfo);
   }
 
-// 
+  //
   start() {
     this.setupRoutes();
     const PORT = process.env.PORT || 3000;

@@ -74,7 +74,7 @@ function App() {
     <div>
       {!gameId && (
         <>
-          {!playerNickname && <MainEntrance  onConfirm={handleConfirm} />}
+          {!playerNickname && <MainEntrance onConfirm={handleConfirm} />}
           {playerNickname && (
             <MainMenu
               onButtonClick={handleButtonClick}
@@ -85,7 +85,11 @@ function App() {
         </>
       )}
       {gameId && (
-        <HUD step={gameState.step} playingSide={gameState.playingSide} />
+        <HUD
+          step={gameState.step}
+          playingSide={gameState.playingSide}
+          key={Date.now}
+        />
       )}
     </div>
   );
