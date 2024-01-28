@@ -22,19 +22,19 @@ export class PawnFigure extends ChessPiece {
     const cellsArr = this.board.getCells();
     if (
       (teamId && y != this.startLineModule) ||
-      (!teamId && y != cellsArr[0].length-1 - this.startLineModule)
+      (!teamId && y != cellsArr[0].length - 1 - this.startLineModule)
     ) {
       this.cell =
         cellsArr[x][
           teamId
             ? this.startLineModule
-            : cellsArr[0].length-1 - this.startLineModule
+            : cellsArr[0].length - 1 - this.startLineModule
         ];
     }
 
     this.scene = scene;
 
-    this.mesh = this.createMesh(this.type, 2.5,2.5);
+    this.mesh = this.createMesh(this.type, 2.5, 2.5);
 
     this.draw();
   }
@@ -51,24 +51,28 @@ export class PawnFigure extends ChessPiece {
     const forwardCell = cellArr[indexX][indexY + movementDirection];
     let isOccupied = null;
 
-    for(const figure of allfigures){
-      if (figure.getCell() == forwardCell){
-          isOccupied = true;
-      }
-    }
-  
-    for (const env of allEnv){
-      if (env.getCell() == forwardCell){
+    for (const figure of allfigures) {
+      if (figure.getCell().getId() == forwardCell.getId()) {
         isOccupied = true;
       }
     }
+    console.log("следующая клетка пешки", forwardCell);
+
+    for (const env of allEnv) {
+      console.log(env.getCell().getId(),forwardCell.getId(),forwardCell.getId()==env.getCell().getId() )
+      if (env.getCell().getId() == forwardCell.getId()) {
+        console.log("клетка окупирована природой :", forwardCell);
+        isOccupied = true;
+      }
+    }
+    console.log("пешка получила природу", allEnv);
 
     if (forwardCell && !isOccupied) {
       possibleMoves.push(forwardCell);
 
       const startLine = this.getTeamId()
         ? this.startLineModule
-        : cellArr[0].length-1 - this.startLineModule;
+        : cellArr[0].length - 1 - this.startLineModule;
 
       if (indexY == startLine) {
         const secondForwardCell =
@@ -78,8 +82,8 @@ export class PawnFigure extends ChessPiece {
           (chess) => chess.getCell() == secondForwardCell
         );
 
-        for (const env of allEnv){
-          if (env.getCell() == secondForwardCell){
+        for (const env of allEnv) {
+          if (env.getCell().getId() == secondForwardCell.getId()) {
             isSecondOccupied = true;
           }
         }
@@ -123,9 +127,10 @@ export class PawnFigure extends ChessPiece {
     return canAttackCells;
   }
 
-  public getFigureAction(): Cell[][]{
-    const canMoveArr = this.canMove()
-    const canAttackArr = this.canAttack()
-    return [canMoveArr,canAttackArr]
+  public getFigureAction(): Cell[][] {
+    console.log("пешка полчает действия");
+    const canMoveArr = this.canMove();
+    const canAttackArr = this.canAttack();
+    return [canMoveArr, canAttackArr];
   }
 }

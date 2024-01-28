@@ -393,6 +393,9 @@ export class Game {
           this.board.setStep(data.stepNumber);
         });
 
+
+
+        // ОБЯЗАТЕЛЬНО!
       fetch(`/get-enviroment/${this.boardId}`) //потом на этом сэкономить
         .then((response) => response.json())
         .then((data) => {

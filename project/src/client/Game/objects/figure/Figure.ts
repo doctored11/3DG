@@ -6,7 +6,7 @@ export class Figure {
   protected scene: THREE.Scene;
   protected color: number;
   protected camera: THREE.Camera;
-  protected id?: number;
+  protected id?: number|string;
 
   constructor(scene: THREE.Scene, camera: THREE.Camera, color: number, id?:number|null) {
     // this.mesh = new THREE.Mesh();
@@ -47,7 +47,7 @@ export class Figure {
   public getColor(): number {
     return this.color;
   }
-  public getId(): number {
+  public getId(): number|string {
     return this.id||-1;
   }
 }

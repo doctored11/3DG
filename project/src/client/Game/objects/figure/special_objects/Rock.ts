@@ -10,10 +10,10 @@ export class Rock extends SpecialObject{
         board: Board,
         cell: Cell,
         color: number,
-        id?:number|null
+        id?:number|string|null
         ) {
 
-            super(scene, camera, board, cell, color, id || 0 );
+            super(scene, camera, board, cell, color);
     
         this.cell = cell;
         this.scene = scene;

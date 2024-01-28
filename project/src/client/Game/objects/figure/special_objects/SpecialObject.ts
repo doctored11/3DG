@@ -7,7 +7,7 @@ export class SpecialObject extends Figure {
   protected cell: Cell;
   public mesh: THREE.Mesh;
   protected board: Board;
-  protected id: number;
+  protected id: number | string;
   protected type = this.constructor.name;
 
   constructor(
@@ -16,14 +16,20 @@ export class SpecialObject extends Figure {
     board: Board,
     cell: Cell,
     color: number,
-    id: number | null
+    id?: number | null | string
   ) {
     super(scene, camera, color);
 
     this.cell = cell;
     this.mesh = this.createMesh("");
     this.board = board;
-    this.id = id || Math.round(Math.random() * 8000) + 1;
+    this.id =
+      id ||
+      "env-" +
+        Math.round(Math.random() * 8000) +
+        1 +
+        "-" +
+        Math.round(Math.random() * 100);
 
     this.draw();
     this.mesh.addEventListener("click", this.onClick.bind(this));

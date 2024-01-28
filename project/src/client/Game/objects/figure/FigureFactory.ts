@@ -15,7 +15,7 @@ export class ChessFigureFactory {
   private cell: Cell;
   private color: number;
   private teamId: 0 | 1;
-  private id?: number | null;
+  private id?: number | null|string;
   // тут перечислить все
   constructor(
     scene: THREE.Scene,
@@ -24,7 +24,7 @@ export class ChessFigureFactory {
     cell: Cell,
     color: number,
     teamId: 0 | 1,
-    id?: number | null
+    id?: number | null|string
   ) {
     this.scene = scene;
     this.camera = camera;

@@ -217,13 +217,14 @@ export class Board {
     return this.environment;
   }
   public restoreFigures(arr: ChessData[]): void {
+
     // console.log(arr);
     // нагруженно но пока так
     const currentFigures = [...this.getFigures()];
     // console.log(currentFigures)
 
     if (arr.length < 1) return;
-
+    console.log("восстанавливаем фигуры")
     const removedFigures = currentFigures.filter(
       (chess) => !arr.some((el) => el.id === chess.getId())
     );
@@ -293,7 +294,7 @@ export class Board {
         if (!cell) return;
         const type = el.type;
         let newEnvEl: SpecialObject | null = null;
-        console.log("Природа типа: ", type);
+        // console.log("Природа типа: ", type);
 
         switch (type) {
           case "Rock":
@@ -312,7 +313,7 @@ export class Board {
         if (!newEnvEl) return;
 
         this.environment.push(newEnvEl);
-        console.log(this.environment);
+        // console.log(this.environment);
       }
     });
 
@@ -365,7 +366,7 @@ export class Board {
   public setStep(newStep: number) {
     this.step = newStep;
   }
-  public getCellById(id: number): Cell | undefined {
+  public getCellById(id: number|string): Cell | undefined {
     for (const row of this.cells) {
       const foundCell = row.find((cell) => cell.getId() == id);
       if (foundCell) {
@@ -378,15 +379,15 @@ export class Board {
 }
 
 export interface ChessData {
-  id: number;
+  id: number|string;
   type: string;
   color: number;
-  cellId: number;
+  cellId: number|string;
   teamId: 0 | 1;
 }
 export interface EnvData {
-  id: number;
+  id: number|string;
   type: string;
 
-  cellId: number;
+  cellId: number|string;
 }
