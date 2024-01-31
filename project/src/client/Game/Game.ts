@@ -11,11 +11,10 @@ import { ApiUtils } from "./ApiUtils";
 const FREQUENCY_UPDATE = 5;
 
 export class Game {
-  // private socket: any;
-  // private key: string;
+
   private gameZone: HTMLDivElement;
   private scene: THREE.Scene = new THREE.Scene();
-  private clientId: string = "_0";
+
 
   protected raycaster!: THREE.Raycaster;
   private renderer!: THREE.WebGLRenderer;
@@ -173,38 +172,12 @@ export class Game {
     const pointer = new THREE.Vector2();
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = (-event.clientY / window.innerHeight) * 2 + 1;
+
     this.raycaster.setFromCamera(pointer, this.playerCamera);
-    const intersectionsArray: Figure[] = [];
-
-    for (const figure of this.board.getFigures()) {
-      console.log("onCLICK!");
-      const intersections = this.raycaster.intersectObjects([figure.mesh]);
-      if (
-        intersections.length > 0 &&
-        intersections[0].object instanceof THREE.Mesh
-      ) {
-        intersectionsArray.push(figure);
-      }
-    }
-    for (const figure of this.board.getFlatCells()) {
-      const intersections = this.raycaster.intersectObjects([figure.mesh]);
-      if (
-        intersections.length > 0 &&
-        intersections[0].object instanceof THREE.Mesh
-      ) {
-        intersectionsArray.push(figure);
-      }
-    }
-
+    const intersectionsArray = this.getIntersectionArr(this.raycaster);
     if (intersectionsArray.length <= 0) return;
 
-    intersectionsArray.sort((a, b) => {
-      const distanceA = a.mesh.position.distanceTo(this.raycaster.ray.origin);
-      const distanceB = b.mesh.position.distanceTo(this.raycaster.ray.origin);
-      return distanceA - distanceB;
-    });
-
-    let firstIntersection = intersectionsArray[0];
+    let firstIntersection = this.getFirstIntersection(intersectionsArray);
 
     let cellsToSHighlight: { cell: Cell; action: "move" | "attack" }[] | null =
       firstIntersection.onSelect();
@@ -213,25 +186,15 @@ export class Game {
     console.log("Готовность двигаться!");
     console.log(this.activeChessFigure);
 
-    // console.log(this.activeCell)
     if (
       firstIntersection instanceof ChessPiece &&
       firstIntersection.getTeamId() == this.player.getPlayingSide()
     ) {
       this.cellColorOf();
       this.activeChessFigure = firstIntersection;
-      console.log("Выбрана основная фигура!");
-      console.log(firstIntersection);
 
       canMoveIt =
         this.activeChessFigure?.getTeamId() == this.player.getPlayingSide();
-
-      console.log(
-        "могу двигать? :",
-        canMoveIt,
-        this.activeChessFigure?.getTeamId(),
-        this.player.getPlayingSide()
-      );
     } else if (
       (firstIntersection instanceof Cell &&
         firstIntersection.getHighlightStatus()) ||
@@ -240,35 +203,22 @@ export class Game {
     ) {
       if (firstIntersection instanceof ChessPiece)
         firstIntersection = firstIntersection.getCell();
-      // console.log("Возможен Мув!");
-      // console.log(this.activeChessFigure || "а где?");
-      // console.log(cellsToSHighlight || "нет выделенных клеток для действий");
+
       let action: string = "move";
-      // console.log("___+!");
-      // console.log(cellsToSHighlight);
+
       canMoveIt =
         this.activeChessFigure?.getTeamId() == this.player.getPlayingSide();
 
-      //если шаг доски синхронизировать то ок:
       canMoveIt =
         canMoveIt &&
         (this.player.getPlayingSide()
           ? this.board.getStep() % 2 != 0
           : this.board.getStep() % 2 == 0);
-      console.log(
-        "Статус хода ",
-        canMoveIt,
-        this.player.getPlayingSide(),
-        this.board.getStep(),
-        this.board.getStep() % 2 != 0,
-        this.board.getStep() % 2 == 0
-      );
 
       this.activeChessFigure?.onSelect()?.forEach((el) => {
         console.log(el.cell === firstIntersection);
         if (el.cell === firstIntersection) action = el.action;
       });
-      console.log("ОПределяем характер движения", canMoveIt);
 
       if (action == "attack" && canMoveIt) {
         this.board.getFigures().forEach((chess) => {
@@ -299,10 +249,10 @@ export class Game {
       this.cellColorOf();
     }
 
-    // console.log(cellsToSHighlight);
+
     const chessArr = this.board.getChessToSend();
     this.onBoardUpdateCallback(chessArr);
-    console.log("Перед покраской ", canMoveIt);
+   
     cellsToSHighlight?.forEach((el) => {
       el.cell.setHighlight(
         true,
@@ -315,13 +265,13 @@ export class Game {
           : 0x560155
       );
     });
+
     if (wasMove) {
       console.log("ТУТ ПОПЫКТКА ОТПРАВИТЬ");
       console.log(chessArr);
-      //тут надо отправлять доску на сервер
-      // this.socket.emit("board update", chessArr);
       await ApiUtils.updateBoard(this.boardId, chessArr);
     }
+
     this.render();
   }
 
@@ -330,6 +280,9 @@ export class Game {
   public onBoardUpdate(callback: (chessArr: ChessData[]) => void) {
     this.onBoardUpdateCallback = callback;
   }
+
+
+
   public oldFigures: ChessData[] | null = null;
   private async getLoop(): Promise<void> {
     setInterval(async () => {
@@ -344,7 +297,7 @@ export class Game {
 
       this.board.setStep(boardData.stepNumber);
 
-      // ОБЯЗАТЕЛЬНО!
+      // ОБЯЗАТЕЛЬНО! - сэкономить на этом!
       const environmentData = await ApiUtils.getEnvironment(this.boardId);
       this.board.restoreEnv(environmentData.chessArr);
 
@@ -356,6 +309,8 @@ export class Game {
       this.render();
     }, 1000 / FREQUENCY_UPDATE);
   }
+
+
   private areArraysEqual(arr1: any[], arr2: any[]): boolean {
     if (arr1.length !== arr2.length) {
       return false;
@@ -386,6 +341,7 @@ export class Game {
 
     return true;
   }
+
   cellColorOf() {
     this.activeChessFigure = null;
 
@@ -396,7 +352,7 @@ export class Game {
     }
   }
   isPlayer(): boolean {
-    const playerId = this.player.getId()+"";
+    const playerId = this.player.getId() + "";
     console.log("проверка на игрока", this.gamersId, playerId);
 
     if (!this.gamersId.includes(playerId)) {
@@ -405,5 +361,41 @@ export class Game {
     }
 
     return true;
+  }
+  private getIntersectionArr(
+    raycaster: THREE.Raycaster
+  ): (ChessPiece | Cell)[] {
+    const intersectionsArray = [];
+    for (const figure of this.board.getFigures()) {
+      console.log("onCLICK!");
+      const intersections = raycaster.intersectObjects([figure.mesh]);
+      if (
+        intersections.length > 0 &&
+        intersections[0].object instanceof THREE.Mesh
+      ) {
+        intersectionsArray.push(figure);
+      }
+    }
+    for (const figure of this.board.getFlatCells()) {
+      const intersections = raycaster.intersectObjects([figure.mesh]);
+      if (
+        intersections.length > 0 &&
+        intersections[0].object instanceof THREE.Mesh
+      ) {
+        intersectionsArray.push(figure);
+      }
+    }
+    return intersectionsArray;
+  }
+
+  private getFirstIntersection(intersectionsArray: Figure[]): Figure {
+    intersectionsArray.sort((a, b) => {
+      const distanceA = a.mesh.position.distanceTo(this.raycaster.ray.origin);
+      const distanceB = b.mesh.position.distanceTo(this.raycaster.ray.origin);
+      return distanceA - distanceB;
+    });
+
+    const firstIntersection = intersectionsArray[0];
+    return firstIntersection;
   }
 }
