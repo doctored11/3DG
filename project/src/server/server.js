@@ -15,16 +15,16 @@ const cors = require('cors');
 
 
 const corsOptions = {
-  origin: 'http://192.168.0.15:3000', 
-  optionsSuccessStatus: 200, 
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://192.168.0.15:3000'],
+
 };
 
-app.use(cors());
+app.use(cors(corsOptions));
 
 
 
 const server = http.createServer();
-const connector = new Connector(app,  server);
+const connector = new Connector(app, server);
 connector.start();
 
 

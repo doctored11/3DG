@@ -7,6 +7,7 @@ import { Figure } from "./objects/figure/Figure";
 import { Cell } from "./objects/Cell";
 import { ChessData } from "./objects/Board";
 import Player from "../Player/Player";
+import { ApiUtils } from "./ApiUtils";
 const FREQUENCY_UPDATE = 5;
 
 export class Game {
@@ -23,7 +24,7 @@ export class Game {
   private player: Player;
   private gamersId: string[] = [];
 
-  private boardId: string | null = "-1";
+  private boardId: string = "-1";
 
   private activeChessFigure: ChessPiece | null = null;
 
@@ -49,7 +50,7 @@ export class Game {
     window.addEventListener("click", (event) => this.onClick(event));
   }
 
-  private setupEventHandlers() {
+  private async setupEventHandlers() {
     const chessArr = this.board.getChessToSend();
     const envArr = this.board.getEnvToSend();
     console.log("ВХОД");
@@ -61,103 +62,63 @@ export class Game {
     if (this.player.getCurrentGameId() == this.boardId) {
       console.log("ожидаю 1-2-3-4");
       console.log("ИГРОК УЧАСТНИК!");
-      fetch(`/update-board/${this.boardId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          chessArr: chessArr,
-          playerId: plId,
-        }),
-      }).then(() => {
-        console.log("отправил 1");
-      });
 
-      fetch(`/update-env/${this.boardId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          envArr: envArr,
-        }),
-      }).then(() => {
-        console.log("отправил 2");
-      });
+      await ApiUtils.updateBoard(this.boardId, chessArr, plId);
+      await ApiUtils.updateEnvironment(this.boardId, envArr);
     }
     let plCount = 0;
     // setTimeout(() => {
-    fetch(`/get-enviroment/${this.boardId}`)
-      .then((response) => {
-        console.log("Получаю 3");
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Получил 3");
+    const envData = await ApiUtils.getEnvironment(this.boardId);
+    this.board.restoreEnv(envData.chessArr);
 
-        console.log("обновление доски ", data);
+    const boardData = await ApiUtils.getBoard(this.boardId);
 
-        this.board.restoreEnv(data.chessArr);
-      });
+    const [width, height] = boardData.boardSize;
+    this.board.changeSize(width, height);
+    this.board.restoreFigures(boardData.chessArr);
 
-    fetch(`/get-board/${this.boardId}`)
-      .then((response) => {
-        console.log("Получаю 4");
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Получил 4");
+    this.gamersId.push(...Object.keys(boardData.players)); //-_-
+    this.board.setStep(boardData.stepNumber);
 
-        console.log("обновление доски ", data);
-        const [width, height] = data.boardSize;
-        this.board.changeSize(width, height);
+    for (const playerId in boardData.players) {
+      if (boardData.players.hasOwnProperty(playerId)) {
+        const teamSide = boardData.players[playerId];
 
-        this.board.restoreFigures(data.chessArr);
-
-        this.gamersId.push(data.players);
-        this.board.setStep(data.stepNumber);
-        console.log(data.players);
-        for (const playerId in data.players) {
-          if (data.players.hasOwnProperty(playerId)) {
-            const teamSide = data.players[playerId];
-            console.log(teamSide, "Tside!");
-            console.log(playerId, this.player.getId());
-
-            if (playerId == this.player.getId()) {
-              this.player.setPlayingSide(teamSide);
-              console.log("удачно присваиваем команду на входе ", this.player);
-              break;
-            }
-          }
+        if (playerId == this.player.getId()) {
+          this.player.setPlayingSide(teamSide);
+          break;
         }
-        //
-        console.log("camSide:  _", this.player.getPlayingSide());
-        if (this.player.getPlayingSide() == 1) {
-          this.playerCamera.position.set(37, 20, 45);
-          this.playerCamera.lookAt(new THREE.Vector3(37, 35, 10));
-        } else {
-          this.playerCamera.up.set(0, 0, 1);
-          this.playerCamera.position.set(37, 60, 40);
-          this.playerCamera.lookAt(new THREE.Vector3(37, 40, 10));
-        }
-        //
-        plCount = Object.keys(data.players).length;
-        this.onGameStateUpdateCallback({
-          step: this.board.getStep(),
-          playingSide: this.player.getPlayingSide(),
-        });
-        console.log(data.players, "получил ", this.player.getId(), plCount);
-        this.render();
-        if (plCount < 2) {
-          setTimeout(() => {
-            this.setupEventHandlers();
-          }, (2 * 1000) / FREQUENCY_UPDATE);
-          return;
-        }
+      }
+    }
 
-        this.getLoop();
-      });
+    if (this.player.getPlayingSide() == 1) {
+      this.playerCamera.position.set(37, 20, 45);
+      this.playerCamera.lookAt(new THREE.Vector3(37, 35, 10));
+    } else {
+      this.playerCamera.up.set(0, 0, 1);
+      this.playerCamera.position.set(37, 60, 40);
+      this.playerCamera.lookAt(new THREE.Vector3(37, 40, 10));
+    }
+
+    plCount = Object.keys(boardData.players).length;
+
+    this.onGameStateUpdateCallback({
+      step: this.board.getStep(),
+      playingSide: this.player.getPlayingSide() || -1,
+    });
+
+    this.render();
+
+    if (plCount < 2) {
+      setTimeout(() => {
+        this.setupEventHandlers();
+      }, (2 * 1000) / FREQUENCY_UPDATE);
+      return;
+    }
+
+    this.getLoop();
+
+    //
     // }, 100);
     // this.render();
   }
@@ -204,11 +165,11 @@ export class Game {
     this.renderer.render(this.scene, this.playerCamera);
   }
 
-  protected onClick(event: MouseEvent) {
+  protected async onClick(event: MouseEvent) {
     // TODO разбить мутанта этого ()
     if (!this.isPlayer()) return;
     let canMoveIt = false;
-    let wasMove = false
+    let wasMove = false;
     const pointer = new THREE.Vector2();
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = (-event.clientY / window.innerHeight) * 2 + 1;
@@ -318,18 +279,18 @@ export class Game {
             console.log(
               "АААA он убит! -> " + JSON.stringify(chess.getPosition())
             );
-           
+
             this.board.removeChess(chess);
             this.activeChessFigure?.move(firstIntersection as Cell);
             cellsToSHighlight = null;
-            wasMove=true
+            wasMove = true;
           }
         });
       }
 
       if (action == "move" && canMoveIt) {
         this.activeChessFigure?.move(firstIntersection as Cell);
-        wasMove=true
+        wasMove = true;
       }
       if (canMoveIt) this.board.nextStep();
 
@@ -359,15 +320,7 @@ export class Game {
       console.log(chessArr);
       //тут надо отправлять доску на сервер
       // this.socket.emit("board update", chessArr);
-    
-
-      fetch(`/update-board/${this.boardId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ chessArr }),
-      });
+      await ApiUtils.updateBoard(this.boardId, chessArr);
     }
     this.render();
   }
@@ -377,36 +330,27 @@ export class Game {
   public onBoardUpdate(callback: (chessArr: ChessData[]) => void) {
     this.onBoardUpdateCallback = callback;
   }
-  public oldFigures: [] | null = null;
-  private getLoop(): void {
-    setInterval(() => {
-      fetch(`/get-board/${this.boardId}`)
-        .then((response) => response.json())
-        .then((data) => {
-          if (!this.areArraysEqual(this.oldFigures || [], data.chessArr)) {
-            // Если массивы разные, восстанавливаем фигуры (проверка по объектам тяжелая но пока пойдет)
-            this.cellColorOf();
-            this.board.restoreFigures(data.chessArr);
-            this.oldFigures = data.chessArr;
-          }
+  public oldFigures: ChessData[] | null = null;
+  private async getLoop(): Promise<void> {
+    setInterval(async () => {
+      const boardData = await ApiUtils.getBoard(this.boardId);
+      console.log("получена доска", boardData, this.boardId);
 
-          this.board.setStep(data.stepNumber);
-        });
+      if (!this.areArraysEqual(this.oldFigures || [], boardData.chessArr)) {
+        this.cellColorOf();
+        this.board.restoreFigures(boardData.chessArr);
+        this.oldFigures = boardData.chessArr;
+      }
 
+      this.board.setStep(boardData.stepNumber);
 
-
-        // ОБЯЗАТЕЛЬНО!
-      fetch(`/get-enviroment/${this.boardId}`) //потом на этом сэкономить
-        .then((response) => response.json())
-        .then((data) => {
-          // console.log("обновление доски ", data);
-
-          this.board.restoreEnv(data.chessArr);
-        });
+      // ОБЯЗАТЕЛЬНО!
+      const environmentData = await ApiUtils.getEnvironment(this.boardId);
+      this.board.restoreEnv(environmentData.chessArr);
 
       this.onGameStateUpdateCallback({
         step: this.board.getStep(),
-        playingSide: this.player.getPlayingSide(),
+        playingSide: this.player.getPlayingSide() || -1,
       });
 
       this.render();
@@ -452,9 +396,10 @@ export class Game {
     }
   }
   isPlayer(): boolean {
-    const playerId = this.player.getId();
+    const playerId = this.player.getId()+"";
+    console.log("проверка на игрока", this.gamersId, playerId);
 
-    if (!this.gamersId.some((gamer) => gamer.hasOwnProperty(playerId))) {
+    if (!this.gamersId.includes(playerId)) {
       console.log("Ты не игрок в этой партии!", this.gamersId, playerId);
       return false;
     }
