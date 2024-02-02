@@ -8,13 +8,12 @@ import { Cell } from "./objects/Cell";
 import { ChessData } from "./objects/Board";
 import Player from "../Player/Player";
 import { ApiUtils } from "./ApiUtils";
+import Awaiter from "../Awaiter/Awaiter";
 const FREQUENCY_UPDATE = 5;
 
 export class Game {
-
   private gameZone: HTMLDivElement;
   private scene: THREE.Scene = new THREE.Scene();
-
 
   protected raycaster!: THREE.Raycaster;
   private renderer!: THREE.WebGLRenderer;
@@ -48,7 +47,7 @@ export class Game {
 
     window.addEventListener("click", (event) => this.onClick(event));
   }
-
+  private awaiter = new Awaiter(1);
   private async setupEventHandlers() {
     const chessArr = this.board.getChessToSend();
     const envArr = this.board.getEnvToSend();
@@ -106,15 +105,15 @@ export class Game {
       playingSide: this.player.getPlayingSide() || -1,
     });
 
-    this.render();
-
     if (plCount < 2) {
+      this.awaiter?.mount();
       setTimeout(() => {
         this.setupEventHandlers();
       }, (2 * 1000) / FREQUENCY_UPDATE);
       return;
     }
-
+    this.awaiter?.unmount();
+    this.render();
     this.getLoop();
 
     //
@@ -154,12 +153,11 @@ export class Game {
   }
 
   private render() {
-    // console.log("render ", !this.renderer || !this.gameZone);
     if (!this.renderer || !this.gameZone) return;
 
     this.scene.clear();
     this.board.render();
-    //  тут был слушатель
+    
 
     this.renderer.render(this.scene, this.playerCamera);
   }
@@ -249,10 +247,9 @@ export class Game {
       this.cellColorOf();
     }
 
-
     const chessArr = this.board.getChessToSend();
     this.onBoardUpdateCallback(chessArr);
-   
+
     cellsToSHighlight?.forEach((el) => {
       el.cell.setHighlight(
         true,
@@ -281,10 +278,8 @@ export class Game {
     this.onBoardUpdateCallback = callback;
   }
 
-
-
   public oldFigures: ChessData[] | null = null;
-  private async getLoop(): Promise<void> {
+  private async getLoop() {
     setInterval(async () => {
       const boardData = await ApiUtils.getBoard(this.boardId);
       console.log("получена доска", boardData, this.boardId);
@@ -309,7 +304,6 @@ export class Game {
       this.render();
     }, 1000 / FREQUENCY_UPDATE);
   }
-
 
   private areArraysEqual(arr1: any[], arr2: any[]): boolean {
     if (arr1.length !== arr2.length) {

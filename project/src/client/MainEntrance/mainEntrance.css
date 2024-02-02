@@ -82,6 +82,9 @@
   border-radius: 0 var(--border-rad) var(--border-rad) 0;
   transition: background-color 0.3s;
 }
+.btn:hover{
+  background-color: #c0ffa7;
+}
 .txt {
   display: inline-block;
   font-family: "Avengean", sans-serif;
