@@ -8,9 +8,9 @@ interface HUDProps {
 
 const HUD: React.FC<HUDProps> = ({ step, playingSide }) => {
   const isYourTurn =
-    (playingSide === 1 && step % 2 != 0) ||
-    (playingSide === 0 && step % 2 == 0);
-
+    (playingSide == 1 && step % 2 != 0) ||
+    (playingSide == 0 && step % 2 == 0);
+  console.log(isYourTurn,playingSide,step )
   return (
     <div className={style.mainHud}>
       <div
